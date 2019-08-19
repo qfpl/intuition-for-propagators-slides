@@ -1,0 +1,4 @@
+digraph Cell {
+    graph [bgcolor=transparent];
+    cell [label=3];
+}

@@ -75,7 +75,7 @@
 \newcommand{\nl}{\vspace{\baselineskip}}
 \newcommand{\pnl}{\pause \nl}
 
-\graphicspath{{images/}}
+\graphicspath{{diagrams/}}
 
 \newcommand{\textslide}[1]{{
 \begin{frame}
@@ -170,11 +170,97 @@ CSIRO's Data61\\
 \huge \centering 1970s, MIT
 \end{frame}
 
+
+\begin{frame}
+
+\Large \centering
+a model of computation for {\bf highly concurrent} machines
+\end{frame}
+
+
 % cell
+\begin{frame}[fragile]
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\includegraphics{cell1.pdf}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{haskellcode}
+do
+  c <- cell
+  ...
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+
 % cell with value
+\begin{frame}[fragile]
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\includegraphics{cell2.pdf}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{haskellcode}
+do
+  c <- cell
+  write c 3
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+
 % propagator
-% reading from cells
+\begin{frame}[fragile]
+\begin{columns}
+\begin{column}{0.5\textwidth}
+% \includegraphics{prop1.pdf}
+\huge
+\input{add.tex}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{haskellcode}
+do
+  inL <- cell
+  inR <- cell
+  watch inL \x ->
+    with inR \y ->
+    ...
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+
+% reading from cells?
 % writing to cells
+\begin{frame}[fragile]
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\includegraphics{prop2.pdf}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{haskellcode}
+do
+  inL <- cell
+  inR <- cell
+  out <- cell
+  watch inL \x ->
+    with inR \y ->
+    write out (x+y)
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}
+\Huge
+\input{add.tex}
+\end{frame}
+
+
+% bidirectional addition
+
 
 \begin{frame}
 \huge \centering
@@ -183,4 +269,3 @@ Thanks for listening!
 
 
 \end{document}
-

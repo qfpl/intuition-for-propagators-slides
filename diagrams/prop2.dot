@@ -1,0 +1,11 @@
+digraph "tri +" {
+    graph [bgcolor=transparent];
+    graph [rankdir=LR];
+    a [label=""];
+    b [label=""];
+    c [label=""];
+    symbol [label="+",shape=square];
+    a -> symbol;
+    b -> symbol;
+    symbol -> c;
+}
