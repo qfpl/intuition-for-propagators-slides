@@ -1,0 +1,15 @@
+packages: .
+
+with-compiler: ghc-8.6.5
+
+source-repository-package
+  type: git
+  location: git@github.com:qfpl/dotagrams.git
+  tag: 596c36d62e566b3f9a4417640791b51409017bb2
+
+
+source-repository-package
+  type: git
+  location: https://github.com/gwils/graphviz.git
+  tag: b3e91a78e59ee1df3ebc6eaac893962d0023ba85
+
