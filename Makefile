@@ -10,7 +10,11 @@ all: propagators.pdf
 open: propagators.pdf
 	evince $(PDF)
 
-propagators.pdf: $(ALL_TEX) #images/*
+.PHONY: diagrams
+diagrams:
+	$(MAKE) -C diagrams
+
+propagators.pdf: $(ALL_TEX) diagrams
 	$(LATEX) $<
 	$(LATEX) $<
 	$(LATEX) $<
@@ -25,5 +29,5 @@ spell: $(ALL_TEX)
 
 .PHONY: clean
 clean:
-	rm -rf $(PDF) *.loc *.toc *.log *.idx *.aux *.out *.nav *.snm *.vrb *.blg *.bbl *.pdf_tex
+	rm -rf $(PDF) *.loc *.toc *.log *.idx *.aux *.out *.nav *.snm *.vrb *.blg *.bbl *.pdf_tex diagrams/*.dot diagrams/*.pdf
 

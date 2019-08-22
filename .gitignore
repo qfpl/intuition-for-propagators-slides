@@ -23,4 +23,5 @@ dist-newstyle/
 .idea/
 /feedback
 /proposals
-
+/diagrams/*.pdf
+/diagrams/*.dot

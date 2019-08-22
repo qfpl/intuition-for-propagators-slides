@@ -1,7 +1,9 @@
+{-# language BlockArguments #-}
 {-# language RecursiveDo #-}
 
 module Main where
 
+import Control.Lens.Indexed (FunctorWithIndex (imap), ifor_)
 import Data.Functor (void)
 import Data.List (intercalate)
 import Data.Propagator.Diagram
@@ -11,56 +13,94 @@ import Data.Foldable (for_)
 import Numeric.Natural (Natural)
 import System.Process (system)
 
-diagram :: Reveal String
-diagram = mdo
+type Name = String
+
+introCell :: Reveal String
+introCell = mdo
+  lHello <- switchLabel sHello "\"hello\""
+  -- always $ labelled lHello $ cell "in" "hello"
+  always $ cell "in" lHello
+  sHello <- slide
+  pure ()
+
+introProp :: Reveal String
+introProp = mdo
+  always $ propagator "add" "+"
+
+  lLeft <- switchLabel sLeft "3"
+  lRight <- switchLabel sRight "7"
+  lOut <- switchLabel sOut "10"
+
+  sCells <- slide
+  reveal sCells $ cell "inL" lLeft
+  reveal sCells $ cell "inR" lRight
+  reveal sCells $ cell "out" lOut
+  reveal sCells $ edge "inL" "add"
+  reveal sCells $ edge "inR" "add"
+  reveal sCells $ edge "add" "out"
+
+  sLeft <- slide
+  sRight <- slide
+  sOut <- slide
+
+  pure ()
+
+simpleAdder :: Reveal String
+simpleAdder = mdo
 
   lL <- switch sThree "" "3"
-  lR <- switch sSeven "" "7"
 
   always $ cell "inL" lL
-  always $ cell "inR" lR
+  sThree <- slide
 
   sProp <- slide
   lProp <- switch sAddition "" "+"
   reveal sProp $ propagator "add" lProp
 
-  sEdges <- slide
-  reveal sEdges $ edge "inL" "add"
-  reveal sEdges $ edge "inR" "add"
+  sEdge <- slide
+  reveal sEdge $ edge "inL" "add"
+
+  sCell2 <- slide
+  lR <- switch sSeven "" "7"
+  reveal sCell2 $ cell "inR" lR
+  reveal sCell2 $ edge "inR" "add"
+
+  sAddition <- slide
 
   sOutput <- slide
   lOut <- switch sTen "" "10"
   reveal sOutput $ cell "out" lOut
   reveal sOutput $ edge "add" "out"
 
-  sAddition <- slide
-  sThree <- slide
   sSeven <- slide
   sTen <- slide
   pure ()
 
-outputs :: [(Natural,DotGraph String)]
-outputs =
-  imap (\i a -> (i, digraph_ (show i) a)) $ runReveal True diagram
-  where
-    imap :: (Natural -> a -> b) -> [a] -> [b]
-    imap f = fmap (uncurry f) . zip [0..]
+render :: Reveal s -> [DotGraph s]
+render diagram =
+  (\i a -> digraph_ (show i) a) `imap` runReveal True diagram
+
+build :: Name -> Reveal String -> IO ()
+build name diagram = ifor_ (render diagram) \ i frame -> do
+  let
+    fndot = name <> show i <> ".dot"
+    fnpdf = name <> show i <> ".pdf"
+    space = " "
+  dotFile fndot frame
+  void $ system $ intercalate space
+    [ "dot"
+    , fndot
+    , "-Tpdf"
+    , "-o"
+    , fnpdf
+    ]
+
+diagrams :: [(Name, Reveal String)]
+diagrams =
+  [ ("intro-cell", introCell)
+  , ("intro-prop", introProp)
+  , ("intro-adder", simpleAdder)
+  ]
 
 main :: IO ()
-main =
-  for_ outputs $ \(i,g) -> do
-    let fndot = "example" <> show i <> ".dot"
-        fnpdf = "example" <> show i <> ".pdf"
-        space = " "
-    dotFile fndot g
-    void $ system $ intercalate space
-      [ "dot"
-      , fndot
-      , "-Tpdf"
-      , "-o"
-      , fnpdf
-      ]
-    void $ system $ intercalate space
-      [ "firefox"
-      , fnpdf
-      ]
+main = for_ diagrams (uncurry build)
