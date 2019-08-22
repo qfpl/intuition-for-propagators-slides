@@ -1,0 +1,3 @@
+[submodule "diagrams/dotagrams"]
+	path = diagrams/dotagrams
+	url = git@github.com:qfpl/dotagrams.git
