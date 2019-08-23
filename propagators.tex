@@ -268,6 +268,47 @@ do
 \end{frame}
 
 
+\begin{frame}[fragile]
+\begin{haskellcode}
+          lift :: (a -> b) -> Cell a -> Cell b -> Par ()
+          lift f input output =
+            watch input (\a ->
+              write output (f a))
+\end{haskellcode}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering
+
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\includegraphics[scale=0.9]{intro-toUpper4.pdf}
+\end{overlayarea}
+
+\begin{columns}
+\begin{column}{0.3\textwidth}
+\end{column}
+\begin{column}{0.7\textwidth}
+\begin{haskellcode}
+do
+  input  <- cell
+\end{haskellcode}
+\begin{haskellcode}
+  output <- cell
+\end{haskellcode}
+\begin{haskellcode}
+  lift toUpper input output
+\end{haskellcode}
+\nl
+\begin{haskellcode}
+  write input 'q'
+  content output   -- Just 'Q'
+\end{haskellcode}
+\end{column}
+\end{columns}
+
+\end{frame}
+
 \iffalse
 
 % cell
