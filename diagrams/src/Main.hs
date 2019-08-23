@@ -48,8 +48,8 @@ introProp = mdo
 
   pure ()
 
-simpleAdder :: Reveal String
-simpleAdder = mdo
+introAdder :: Reveal String
+introAdder = mdo
 
   lL <- switch sThree "" "3"
 
@@ -99,6 +99,19 @@ introToUpper = mdo
 
   pure ()
 
+buildAdder :: Reveal String
+buildAdder = mdo
+  always $ cell "inL" ""
+  always $ cell "inR" ""
+  always $ cell "out" ""
+
+  sProp <- slide
+  reveal sProp $ propagator "add" "+"
+  reveal sProp $ edge "inL" "add"
+  reveal sProp $ edge "inR" "add"
+  reveal sProp $ edge "add" "out"
+
+  pure ()
 
 render :: Reveal s -> [DotGraph s]
 render diagram =
@@ -124,7 +137,8 @@ diagrams =
   [ ("intro-cell", introCell)
   , ("intro-prop", introProp)
   , ("intro-toUpper", introToUpper)
-  , ("intro-adder", simpleAdder)
+  , ("intro-adder", introAdder)
+  , ("build-adder", buildAdder)
   ]
 
 main :: IO ()

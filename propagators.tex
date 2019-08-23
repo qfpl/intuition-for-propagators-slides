@@ -239,8 +239,6 @@ watch   :: Cell a -> (a -> Par ()) -> Par ()
 \end{onlyenv}
 \end{overlayarea}
 
-% \nl %\hrule
-
 \begin{columns}
 \begin{column}{0.3\textwidth}
 \end{column}
@@ -308,6 +306,99 @@ do
 \end{columns}
 
 \end{frame}
+
+
+\begin{frame}[fragile]
+\centering
+
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\begin{onlyenv}<1>
+\includegraphics[scale=0.9]{build-adder0.pdf}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\includegraphics[scale=0.9]{build-adder1.pdf}
+\end{onlyenv}
+\end{overlayarea}
+
+\begin{columns}
+\begin{column}{0.3\textwidth}
+\end{column}
+\begin{column}{0.7\textwidth}
+\begin{haskellcode}
+do  inL  <- cell
+    inR  <- cell
+    out  <- cell
+\end{haskellcode}
+\pnl
+\begin{haskellcode}
+  watch inL (\x ->
+    do  maybeY <- content inR
+        case maybeY of
+          Nothing -> pure ()
+          Just y  -> write out (x+y)
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\begin{haskellcode}
+          with :: Cell a -> (a -> Par ()) -> Par ()
+          with theCell callback =
+            do  maybeA <- content theCell
+                case maybeA of
+                  Nothing -> pure ()
+                  Just a  -> callback a
+\end{haskellcode}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering
+
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\includegraphics[scale=0.9]{build-adder1.pdf}
+\end{overlayarea}
+
+\begin{columns}
+\begin{column}{0.3\textwidth}
+\end{column}
+\begin{column}{0.7\textwidth}
+\begin{haskellcode}
+do  inL  <- cell
+    inR  <- cell
+    out  <- cell
+\end{haskellcode}
+\nl
+\begin{haskellcode}
+  watch inL (\x ->
+    with inR (\y ->
+      write out (x+y)
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+% TODO make numbers jump around to demonstrate the watch problem
+
+
+\begin{frame}[fragile]
+\begin{haskellcode}
+          lift2 :: (a -> b -> c)
+                -> Cell a -> Cell b -> Cell c
+                -> Par ()
+          lift2 f inL inR out = do
+
+            watch inL (\a ->
+              with inR (\b ->
+                write out (f a b)))
+            watch inR (\b ->
+              with inL (\a ->
+                write out (f a b)))
+\end{haskellcode}
+
+\end{frame}
+
 
 \iffalse
 
