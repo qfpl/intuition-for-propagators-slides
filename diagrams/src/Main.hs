@@ -1,4 +1,5 @@
 {-# language BlockArguments #-}
+{-# language OverloadedLists #-}
 {-# language RecursiveDo #-}
 
 module Main where
@@ -17,19 +18,19 @@ type Name = String
 
 introCell :: Reveal String
 introCell = mdo
-  lHello <- switchLabel sHello "\"hello\""
-  -- always $ labelled lHello $ cell "in" "hello"
-  always $ cell "in" lHello
-  sHello <- slide
+  lMessage <- switchLabels [(sMessage1,"\"Hello\""),(sMessage2,"\"Compose\"")]
+  always $ cell "in" lMessage
+  sMessage1 <- slide
+  sMessage2 <- slide
   pure ()
 
 introProp :: Reveal String
 introProp = mdo
   always $ propagator "add" "+"
 
-  lLeft <- switchLabel sLeft "3"
+  lLeft <- switchLabels [(sLeft1, "3"), (sLeft2, "5")]
   lRight <- switchLabel sRight "7"
-  lOut <- switchLabel sOut "10"
+  lOut <- switchLabels [(sOut1, "10"), (sOut2, "12")]
 
   sCells <- slide
   reveal sCells $ cell "inL" lLeft
@@ -39,9 +40,11 @@ introProp = mdo
   reveal sCells $ edge "inR" "add"
   reveal sCells $ edge "add" "out"
 
-  sLeft <- slide
+  sLeft1 <- slide
   sRight <- slide
-  sOut <- slide
+  sOut1 <- slide
+  sLeft2 <- slide
+  sOut2 <- slide
 
   pure ()
 
