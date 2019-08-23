@@ -79,6 +79,27 @@ simpleAdder = mdo
   sTen <- slide
   pure ()
 
+introToUpper :: Reveal String
+introToUpper = mdo
+  lIn <- switchLabel sWrite "\'q\'"
+  lOut <- switchLabel sRun "\'Q\'"
+
+  always $ cell "in" lIn
+  
+  sOut <- slide
+  reveal sOut $ cell "out" lOut
+
+  sProp <- slide
+  reveal sProp $ propagator "prop" "toUpper"
+  reveal sProp $ edge "in" "prop"
+  reveal sProp $ edge "prop" "out"
+
+  sWrite <- slide
+  sRun <- slide
+
+  pure ()
+
+
 render :: Reveal s -> [DotGraph s]
 render diagram =
   (\i a -> digraph_ (show i) a) `imap` runReveal True diagram
@@ -102,6 +123,7 @@ diagrams :: [(Name, Reveal String)]
 diagrams =
   [ ("intro-cell", introCell)
   , ("intro-prop", introProp)
+  , ("intro-toUpper", introToUpper)
   , ("intro-adder", simpleAdder)
   ]
 

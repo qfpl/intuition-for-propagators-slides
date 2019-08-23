@@ -45,28 +45,28 @@
 
 
 \newminted{haskell}{}
-\newminted{scheme}{}
-\newminted{java}{}
+% \newminted{scheme}{}
+% \newminted{java}{}
 
-\lstdefinelanguage{haskell}{
-  morekeywords={class,instance,where,do,data,newtype,default,deriving,module,import,qualified,as},
-  otherkeywords={<-},
-  sensitive=true,
-  morecomment=[l]{--},
-  morecomment=[n]{\{-}{-\}},
-  morestring=[b]",
-  morestring=[b]"""
-}
+% \lstdefinelanguage{haskell}{
+%   morekeywords={class,instance,where,do,data,newtype,default,deriving,module,import,qualified,as},
+%   otherkeywords={<-},
+%   sensitive=true,
+%   morecomment=[l]{--},
+%   morecomment=[n]{\{-}{-\}},
+%   morestring=[b]",
+%   morestring=[b]"""
+% }
 
-\lstnewenvironment{code}{
-  \lstset{
-    language=haskell,
-    basicstyle=\small\ttfamily,
-    stringstyle=\color{olive}\ttfamily,
-    escapeinside={*@}{@*},
-    showstringspaces=false
-  }
-}{}
+% \lstnewenvironment{code}{
+%   \lstset{
+%     language=haskell,
+%     basicstyle=\small\ttfamily,
+%     stringstyle=\color{olive}\ttfamily,
+%     escapeinside={*@}{@*},
+%     showstringspaces=false
+%   }
+% }{}
 
 \definecolor{g}{RGB}{0,100,0}
 \newcommand{\highlight}[1]{\colorbox{yellow}{#1}}
@@ -189,6 +189,84 @@ a model of computation for {\bf highly concurrent} machines
 \imageslide[1.5]{intro-prop4.pdf}
 \imageslide[1.5]{intro-prop5.pdf}
 \imageslide[1.5]{intro-prop6.pdf}
+
+
+\begin{frame}[fragile]
+\begin{haskellcode}
+-- types
+data Cell a
+
+data Par a
+instance Monad Par
+\end{haskellcode}
+\pnl
+\begin{haskellcode}
+-- Creating a cell
+cell    :: Par (Cell a)
+\end{haskellcode}
+\pnl
+\begin{haskellcode}
+-- Working with Cells
+content :: Cell a -> Par (Maybe a)
+write   :: Cell a -> a -> Par ()
+\end{haskellcode}
+\pnl
+\begin{haskellcode}
+-- Creating a propagator
+watch   :: Cell a -> (a -> Par ()) -> Par ()
+\end{haskellcode}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering
+
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\begin{onlyenv}<1>
+\includegraphics[scale=0.9]{intro-toUpper0.pdf}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\includegraphics[scale=0.9]{intro-toUpper1.pdf}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\includegraphics[scale=0.9]{intro-toUpper2.pdf}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\includegraphics[scale=0.9]{intro-toUpper3.pdf}
+\end{onlyenv}
+\begin{onlyenv}<5>
+\includegraphics[scale=0.9]{intro-toUpper4.pdf}
+\end{onlyenv}
+\end{overlayarea}
+
+% \nl %\hrule
+
+\begin{columns}
+\begin{column}{0.3\textwidth}
+\end{column}
+\begin{column}{0.7\textwidth}
+\begin{haskellcode}
+do
+  input  <- cell
+\end{haskellcode}
+\pause
+\begin{haskellcode}
+  output <- cell
+\end{haskellcode}
+\pause
+\begin{haskellcode}
+  watch input (\c ->
+    write output (toUpper c))
+\end{haskellcode}
+\pnl
+\begin{haskellcode}
+  write input 'q'
+  content output   -- Just 'Q'
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
+
 
 \iffalse
 
