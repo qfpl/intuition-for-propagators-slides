@@ -15,6 +15,7 @@
 *.o
 *.hi
 *.synctex.gz
+.ghc.env*
 /_minted-*/
 *-converted-to.pdf
 target/

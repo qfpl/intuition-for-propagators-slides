@@ -128,35 +128,52 @@ buildAdder = mdo
 biAdder :: Reveal String
 biAdder = mdo
 
+  lInL <- switchLabels [(sInL1, "4"), (sInL2, "3"), (sBlank, ""), (sInL3, "17")]
+  lInR <- switchLabels [(sInR1, "5"), (sBlank, ""), (sInR2, "13")]
+  lOut <- switchLabels [(sOut1, "9"), (sOut2, "8"), (sBlank, ""), (sOut3, "30")]
+
   bunch 0 $ do
     lift $ graphAttrs [rank SameRank]
-    always $ cell "inL" ""
-    always $ cell "inR" ""
+    always $ cell "inL" lInL
+    always $ cell "inR" lInR
 
   bunch 1 $ do
     lift $ graphAttrs [rank SameRank]
-    always $ propagator "sub1" "-"
+    reveal sMulti $ propagator "sub1" "-"
     always $ propagator "add" "+"
-    always $ propagator "sub2" "-"
+    reveal sMulti $ propagator "sub2" "-"
 
   bunch 2 $ do
     lift $ graphAttrs [rank SameRank]
-    always $ cell "out" ""
+    always $ cell "out" lOut
 
   always $ attrs [Weight (Int 50)] $ edge "inL" "add"
   always $ attrs [Weight (Int 50)] $ edge "inR" "add"
   always $ attrs [Weight (Int 50)] $ edge "add" "out"
 
-  always $ edge "out" "sub1"
-  always $ edge "inL" "sub1"
-  always $ edge "sub1" "inR"
+  reveal sMulti $ edge "out" "sub1"
+  reveal sMulti $ edge "inL" "sub1"
+  reveal sMulti $ edge "sub1" "inR"
 
-  always $ edge "out" "sub2"
-  always $ edge "inR" "sub2"
-  always $ edge "sub2" "inL"
+  reveal sMulti $ edge "out" "sub2"
+  reveal sMulti $ edge "inR" "sub2"
+  reveal sMulti $ edge "sub2" "inL"
 
   never $ attrs [Weight (Int 0), MinLen 2] $ edge "inL" "out"
   never $ attrs [Weight (Int 0), MinLen 2] $ edge "inR" "out"
+
+  sInL1 <- slide
+  sInR1 <- slide
+  sOut1 <- slide
+  sInL2 <- slide
+  sOut2 <- slide
+  sBlank <- slide
+  sMulti <- slide
+  sOut3 <- slide
+  sInR2 <- slide
+  sInL3 <- slide
+
+  pure ()
 
 render :: Reveal s -> [DotGraph s]
 render diagram =

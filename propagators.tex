@@ -309,7 +309,7 @@ do
 \begin{onlyenv}<1>
 \includegraphics[scale=0.9]{build-adder0.pdf}
 \end{onlyenv}
-\begin{onlyenv}<2>
+\begin{onlyenv}<2->
 \includegraphics[scale=0.9]{build-adder1.pdf}
 \end{onlyenv}
 \end{overlayarea}
@@ -328,6 +328,14 @@ do
     case maybeY of
       Nothing -> pure ()
       Just y  -> write out (x+y)
+\end{haskellcode}
+\pnl
+\begin{haskellcode}
+  watch inR (\y -> do
+    maybeX <- content inL
+    case maybeX of
+      Nothing -> pure ()
+      Just x  -> write out (x+y)
 \end{haskellcode}
 \end{column}
 \end{columns}
@@ -368,6 +376,12 @@ do
     with inR (\y ->
       write out (x+y)
 \end{haskellcode}
+\pnl
+\begin{haskellcode}
+  watch inR (\y ->
+    with inL (\x ->
+      write out (x+y)
+\end{haskellcode}
 \end{column}
 \end{columns}
 \end{frame}
@@ -393,6 +407,36 @@ do
 
 \end{frame}
 
+
+\begin{frame}[fragile]
+\centering
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\includegraphics[scale=0.8]{build-adder1.pdf}
+\end{overlayarea}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{haskellcode}
+do
+  inL  <- cell
+  inR  <- cell
+  out  <- cell
+\end{haskellcode}
+\nl
+\begin{haskellcode}
+  adder inL inR out
+
+    where
+      adder l r o = do
+        lift2 (+) l r o
+        lift2 (-) o l r
+        lift2 (-) o r l
+\end{haskellcode}
+\end{column}
+\end{columns}
+\end{frame}
 
 \begin{frame}
 \centering
