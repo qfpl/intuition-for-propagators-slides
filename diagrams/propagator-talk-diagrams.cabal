@@ -16,7 +16,8 @@ executable propagator-talk-diagrams
     graphviz,
     dotagrams,
     lens ^>= 4.17,
-    process ^>= 1.6.5
+    process ^>= 1.6.5,
+    transformers
   hs-source-dirs:
     src
   default-language:

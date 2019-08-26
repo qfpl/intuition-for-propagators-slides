@@ -29,5 +29,5 @@ spell: $(ALL_TEX)
 
 .PHONY: clean
 clean:
-	rm -rf $(PDF) *.loc *.toc *.log *.idx *.aux *.out *.nav *.snm *.vrb *.blg *.bbl *.pdf_tex diagrams/*.dot diagrams/*.pdf
+	rm -rf $(PDF) *.loc *.toc *.log *.idx *.aux *.out *.nav *.snm *.vrb *.blg *.bbl *.pdf_tex diagrams/*.dot diagrams/*.pdf _minted*
 

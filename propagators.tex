@@ -13,7 +13,7 @@
 \usepackage{graphicx} % Allows including images
 \usepackage{booktabs} % Allows the use of \toprule, \midrule and \bottomrule in tables
 \usepackage{hyperref}
-\usepackage{apacite}
+%\usepackage{apacite}
 \usepackage{babel}
 \usepackage{fancyvrb}
 \usepackage{color}
@@ -45,28 +45,6 @@
 
 
 \newminted{haskell}{}
-% \newminted{scheme}{}
-% \newminted{java}{}
-
-% \lstdefinelanguage{haskell}{
-%   morekeywords={class,instance,where,do,data,newtype,default,deriving,module,import,qualified,as},
-%   otherkeywords={<-},
-%   sensitive=true,
-%   morecomment=[l]{--},
-%   morecomment=[n]{\{-}{-\}},
-%   morestring=[b]",
-%   morestring=[b]"""
-% }
-
-% \lstnewenvironment{code}{
-%   \lstset{
-%     language=haskell,
-%     basicstyle=\small\ttfamily,
-%     stringstyle=\color{olive}\ttfamily,
-%     escapeinside={*@}{@*},
-%     showstringspaces=false
-%   }
-% }{}
 
 \definecolor{g}{RGB}{0,100,0}
 \newcommand{\highlight}[1]{\colorbox{yellow}{#1}}
@@ -221,46 +199,60 @@ watch   :: Cell a -> (a -> Par ()) -> Par ()
 \begin{frame}[fragile]
 \centering
 
+\begin{columns}
+\begin{column}{0.5\textwidth}
 \begin{overlayarea}{0.5\textwidth}{0.4\textheight}
 \begin{onlyenv}<1>
-\includegraphics[scale=0.9]{intro-toUpper0.pdf}
+\includegraphics[scale=0.8]{intro-toUpper0.pdf}
 \end{onlyenv}
 \begin{onlyenv}<2>
-\includegraphics[scale=0.9]{intro-toUpper1.pdf}
+\includegraphics[scale=0.8]{intro-toUpper1.pdf}
 \end{onlyenv}
 \begin{onlyenv}<3>
-\includegraphics[scale=0.9]{intro-toUpper2.pdf}
+\includegraphics[scale=0.8]{intro-toUpper2.pdf}
 \end{onlyenv}
 \begin{onlyenv}<4>
-\includegraphics[scale=0.9]{intro-toUpper3.pdf}
+\includegraphics[scale=0.8]{intro-toUpper3.pdf}
 \end{onlyenv}
-\begin{onlyenv}<5>
-\includegraphics[scale=0.9]{intro-toUpper4.pdf}
+\begin{onlyenv}<5->
+\includegraphics[scale=0.8]{intro-toUpper4.pdf}
 \end{onlyenv}
 \end{overlayarea}
-
-\begin{columns}
-\begin{column}{0.3\textwidth}
 \end{column}
-\begin{column}{0.7\textwidth}
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{\textwidth}{0.5\textheight}
+\begin{onlyenv}<1->
 \begin{haskellcode}
 do
   input  <- cell
 \end{haskellcode}
-\pause
+\end{onlyenv}
+\begin{onlyenv}<2->
 \begin{haskellcode}
   output <- cell
 \end{haskellcode}
-\pause
-\begin{haskellcode}
+\end{onlyenv}
+\begin{onlyenv}<3-5>
+\begin{minted}{haskell}
   watch input (\c ->
     write output (toUpper c))
-\end{haskellcode}
-\pnl
+\end{minted}
+\end{onlyenv}
+\begin{onlyenv}<6>
+\begin{minted}[highlightlines={1,2}]{haskell}
+  watch input (\c ->
+    write output (toUpper c))
+\end{minted}
+\end{onlyenv}
+
+\nl
+\begin{onlyenv}<4->
 \begin{haskellcode}
   write input 'q'
   content output   -- Just 'Q'
 \end{haskellcode}
+\end{onlyenv}
+\end{overlayarea}
 \end{column}
 \end{columns}
 \end{frame}
@@ -279,14 +271,13 @@ do
 \begin{frame}[fragile]
 \centering
 
-\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
-\includegraphics[scale=0.9]{intro-toUpper4.pdf}
-\end{overlayarea}
-
 \begin{columns}
-\begin{column}{0.3\textwidth}
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\includegraphics[scale=0.8]{intro-toUpper4.pdf}
+\end{overlayarea}
 \end{column}
-\begin{column}{0.7\textwidth}
+\begin{column}{0.5\textwidth}
 \begin{haskellcode}
 do
   input  <- cell
@@ -294,9 +285,9 @@ do
 \begin{haskellcode}
   output <- cell
 \end{haskellcode}
-\begin{haskellcode}
+\begin{minted}[highlightlines=1]{haskell}
   lift toUpper input output
-\end{haskellcode}
+\end{minted}
 \nl
 \begin{haskellcode}
   write input 'q'
@@ -311,6 +302,9 @@ do
 \begin{frame}[fragile]
 \centering
 
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
 \begin{overlayarea}{0.5\textwidth}{0.4\textheight}
 \begin{onlyenv}<1>
 \includegraphics[scale=0.9]{build-adder0.pdf}
@@ -319,23 +313,21 @@ do
 \includegraphics[scale=0.9]{build-adder1.pdf}
 \end{onlyenv}
 \end{overlayarea}
-
-\begin{columns}
-\begin{column}{0.3\textwidth}
 \end{column}
-\begin{column}{0.7\textwidth}
+\begin{column}{0.5\textwidth}
 \begin{haskellcode}
-do  inL  <- cell
-    inR  <- cell
-    out  <- cell
+do
+  inL  <- cell
+  inR  <- cell
+  out  <- cell
 \end{haskellcode}
 \pnl
 \begin{haskellcode}
-  watch inL (\x ->
-    do  maybeY <- content inR
-        case maybeY of
-          Nothing -> pure ()
-          Just y  -> write out (x+y)
+  watch inL (\x -> do
+    maybeY <- content inR
+    case maybeY of
+      Nothing -> pure ()
+      Just y  -> write out (x+y)
 \end{haskellcode}
 \end{column}
 \end{columns}
@@ -345,11 +337,11 @@ do  inL  <- cell
 \begin{frame}[fragile]
 \begin{haskellcode}
           with :: Cell a -> (a -> Par ()) -> Par ()
-          with theCell callback =
-            do  maybeA <- content theCell
-                case maybeA of
-                  Nothing -> pure ()
-                  Just a  -> callback a
+          with theCell callback = do
+            maybeA <- content theCell
+              case maybeA of
+                Nothing -> pure ()
+                Just a  -> callback a
 \end{haskellcode}
 \end{frame}
 
@@ -357,18 +349,18 @@ do  inL  <- cell
 \begin{frame}[fragile]
 \centering
 
-\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
-\includegraphics[scale=0.9]{build-adder1.pdf}
-\end{overlayarea}
-
 \begin{columns}
-\begin{column}{0.3\textwidth}
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\includegraphics[scale=0.8]{build-adder1.pdf}
+\end{overlayarea}
 \end{column}
-\begin{column}{0.7\textwidth}
+\begin{column}{0.5\textwidth}
 \begin{haskellcode}
-do  inL  <- cell
-    inR  <- cell
-    out  <- cell
+do
+  inL  <- cell
+  inR  <- cell
+  out  <- cell
 \end{haskellcode}
 \nl
 \begin{haskellcode}
@@ -387,8 +379,10 @@ do  inL  <- cell
           lift2 :: (a -> b -> c)
                 -> Cell a -> Cell b -> Cell c
                 -> Par ()
+\end{haskellcode}
+\pause
+\begin{haskellcode}
           lift2 f inL inR out = do
-
             watch inL (\a ->
               with inR (\b ->
                 write out (f a b)))
@@ -400,92 +394,11 @@ do  inL  <- cell
 \end{frame}
 
 
-\iffalse
-
-% cell
-\begin{frame}[fragile]
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\includegraphics{intro-adder0.pdf}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  c <- cell
-  ...
-\end{haskellcode}
-\end{column}
-\end{columns}
-\end{frame}
-
-% cell with value
-\begin{frame}[fragile]
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\includegraphics{intro-adder1.pdf}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  c <- cell
-  write c 3
-\end{haskellcode}
-\end{column}
-\end{columns}
-\end{frame}
-
-% propagator
-\begin{frame}[fragile]
-\begin{columns}
-\begin{column}{0.5\textwidth}
-% \includegraphics{prop1.pdf}
-\huge
-\input{add.tex}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  inL <- cell
-  inR <- cell
-  watch inL \x ->
-    with inR \y ->
-    ...
-\end{haskellcode}
-\end{column}
-\end{columns}
-\end{frame}
-
-% reading from cells?
-% writing to cells
-\begin{frame}[fragile]
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\includegraphics{prop2.pdf}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  inL <- cell
-  inR <- cell
-  out <- cell
-  watch inL \x ->
-    with inR \y ->
-    write out (x+y)
-\end{haskellcode}
-\end{column}
-\end{columns}
-\end{frame}
-
-
 \begin{frame}
-\Huge
-\input{add.tex}
+\centering
+\fontsize{60}{70}\selectfont ?!
+
 \end{frame}
-
-
-% bidirectional addition
-
-\fi
 
 \begin{frame}
 \huge \centering

@@ -5,9 +5,12 @@
 module Main where
 
 import Control.Lens.Indexed (FunctorWithIndex (imap), ifor_)
+import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Functor (void)
 import Data.List (intercalate)
 import Data.Propagator.Diagram
+import Data.GraphViz.Attributes (rank)
+import Data.GraphViz.Attributes.Complete (Attribute (Weight, MinLen), Number (Int), RankType (SameRank))
 import Data.GraphViz.Types.Monadic
 import Data.GraphViz.Types.Generalised (DotGraph)
 import Data.Foldable (for_)
@@ -101,9 +104,13 @@ introToUpper = mdo
 
 buildAdder :: Reveal String
 buildAdder = mdo
-  always $ cell "inL" ""
-  always $ cell "inR" ""
-  always $ cell "out" ""
+  lInL <- switchLabels [(sInL1, "4"), (sInL2, "5")]
+  lInR <- switchLabel sInR "3"
+  lOut <- switchLabel sOut "8"
+
+  always $ cell "inL" lInL
+  always $ cell "inR" lInR
+  always $ cell "out" lOut
 
   sProp <- slide
   reveal sProp $ propagator "add" "+"
@@ -111,7 +118,45 @@ buildAdder = mdo
   reveal sProp $ edge "inR" "add"
   reveal sProp $ edge "add" "out"
 
+  sInL1 <- slide
+  sInR  <- slide
+  sInL2 <- slide
+  sOut  <- slide
+
   pure ()
+
+biAdder :: Reveal String
+biAdder = mdo
+
+  bunch 0 $ do
+    lift $ graphAttrs [rank SameRank]
+    always $ cell "inL" ""
+    always $ cell "inR" ""
+
+  bunch 1 $ do
+    lift $ graphAttrs [rank SameRank]
+    always $ propagator "sub1" "-"
+    always $ propagator "add" "+"
+    always $ propagator "sub2" "-"
+
+  bunch 2 $ do
+    lift $ graphAttrs [rank SameRank]
+    always $ cell "out" ""
+
+  always $ attrs [Weight (Int 50)] $ edge "inL" "add"
+  always $ attrs [Weight (Int 50)] $ edge "inR" "add"
+  always $ attrs [Weight (Int 50)] $ edge "add" "out"
+
+  always $ edge "out" "sub1"
+  always $ edge "inL" "sub1"
+  always $ edge "sub1" "inR"
+
+  always $ edge "out" "sub2"
+  always $ edge "inR" "sub2"
+  always $ edge "sub2" "inL"
+
+  never $ attrs [Weight (Int 0), MinLen 2] $ edge "inL" "out"
+  never $ attrs [Weight (Int 0), MinLen 2] $ edge "inR" "out"
 
 render :: Reveal s -> [DotGraph s]
 render diagram =
@@ -139,6 +184,7 @@ diagrams =
   , ("intro-toUpper", introToUpper)
   , ("intro-adder", introAdder)
   , ("build-adder", buildAdder)
+  , ("bidirectional-adder", biAdder)
   ]
 
 main :: IO ()

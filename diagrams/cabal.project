@@ -7,5 +7,5 @@ with-compiler: ghc-8.6.5
 source-repository-package
   type: git
   location: https://github.com/gwils/graphviz.git
-  tag: b3e91a78e59ee1df3ebc6eaac893962d0023ba85
+  tag: 298f22543fa0d662082a3d30dcc65bf23e3b2eb0
 
