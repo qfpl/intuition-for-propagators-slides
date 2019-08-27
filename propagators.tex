@@ -468,7 +468,7 @@ data WriteOnce a
 
 \begin{onlyenv}<1>
 \begin{haskellcode}
-write ::         a -> WriteOnce a -> WriteOnce a
+write ::           a -> WriteOnce a -> WriteOnce a
 write a w = case w of
   None      -> Written a
   Written b -> TooMany
@@ -478,7 +478,7 @@ write a w = case w of
 
 \begin{onlyenv}<2->
 \begin{haskellcode}
-write :: Eq a => a -> WriteOnce a -> WriteOnce a
+write :: (Eq a) => a -> WriteOnce a -> WriteOnce a
 write a w = case w of
   None      -> Written a
   Written b -> if a == b then Written b else TooMany
@@ -494,9 +494,12 @@ write a w = case w of
 \begin{frame}[fragile]
 \centering \huge
 Accumulate information about a value
+\nl
 
-\pnl
 \large
+\begin{overlayarea}{\textwidth}{0.5\textheight}
+\begin{onlyenv}<2>
+
 \begin{haskellcode}
 
 data WriteOnce a
@@ -510,34 +513,25 @@ data WriteOnce a
   -- I have heard contradictory answers!
   | TooMany
 \end{haskellcode}
+\end{onlyenv}
+\begin{onlyenv}<3>
+The accumulation must:
+
+\begin{itemize}
+\item tolerate {\bf reordering} of information
+\item tolerate {\bf grouping} of information
+\item ignore {\bf redencancy} of information
+\end{itemize}
+\end{onlyenv}
+\end{overlayarea}
 \end{frame}
-
-
-\begin{frame}
-
-\centering \huge
-Monotonicity
-\nl
-
-\Large
-
-$ x \leq y \implies f(x) \leq f(y)$
-
-\end{frame}
-
-% TODO graphs of monotone
 
 
 \begin{frame}[fragile]
 \centering \huge
 Bounded join semilattice
-
+\nl
 \large
-\begin{haskellcode}
-class Semilattice a where
-  (\/)   :: a -> a -> a
-  bottom :: a
-\end{haskellcode}
 
 Identity: \\
 $x \vee bottom = bottom = bottom \vee x$
@@ -559,11 +553,11 @@ $x \vee x = x$
 
 \begin{frame}[fragile]
 \begin{haskellcode}
-class Semilattice a where
+class SemiLattice a where
   (\/)   :: a -> a -> a
   bottom :: a
 
-instance Eq a => Semilattice (WriteOnce a) where
+instance (Eq a) => SemiLattice (WriteOnce a) where
   None      \/ b           = b
   TooMany   \/ x           = TooMany
   Written a \/ None        = Written a
@@ -571,6 +565,30 @@ instance Eq a => Semilattice (WriteOnce a) where
   Written a \/ TooMany     = TooMany
 \end{haskellcode}
 \end{frame}
+
+
+\begin{frame}[fragile]
+\begin{haskellcode}
+instance (Ord a) => Semilattice (Set a) where
+  p \/ q = Set.union p q
+  bottom = Set.empty
+\end{haskellcode}
+\end{frame}
+
+
+\begin{frame}
+
+\centering \huge
+Monotonicity
+\nl
+
+\Large
+
+$ x \leq y \implies f(x) \leq f(y)$
+
+\end{frame}
+
+% TODO graphs of monotone
 
 
 \begin{frame}
