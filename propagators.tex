@@ -440,9 +440,138 @@ do
 
 \begin{frame}
 \centering
-\fontsize{60}{70}\selectfont ?!
+\fontsize{60}{70}\selectfont $?!$
 
 \end{frame}
+
+
+\begin{frame}
+\centering \huge
+
+How can we fix this?
+\end{frame}
+
+
+\begin{frame}[fragile]
+\begin{columns}
+\column{0.1\textwidth}
+\column{0.7\textwidth}
+\begin{overlayarea}{\textwidth}{0.6\textheight}
+\begin{haskellcode}
+data WriteOnce a
+  = None
+  | Written a
+  | TooMany
+\end{haskellcode}
+
+\nl
+
+\begin{onlyenv}<1>
+\begin{haskellcode}
+write ::         a -> WriteOnce a -> WriteOnce a
+write a w = case w of
+  None      -> Written a
+  Written b -> TooMany
+  TooMany   -> TooMany
+\end{haskellcode}
+\end{onlyenv}
+
+\begin{onlyenv}<2->
+\begin{haskellcode}
+write :: Eq a => a -> WriteOnce a -> WriteOnce a
+write a w = case w of
+  None      -> Written a
+  Written b -> if a == b then Written b else TooMany
+  TooMany   -> TooMany
+\end{haskellcode}
+\end{onlyenv}
+\end{overlayarea}
+\column{0.2\textwidth}
+\end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering \huge
+Accumulate information about a value
+
+\pnl
+\large
+\begin{haskellcode}
+
+data WriteOnce a
+
+  -- I don't know anything
+  = None
+
+  -- I know the answer exactly
+  | Written a
+
+  -- I have heard contradictory answers!
+  | TooMany
+\end{haskellcode}
+\end{frame}
+
+
+\begin{frame}
+
+\centering \huge
+Monotonicity
+\nl
+
+\Large
+
+$ x \leq y \implies f(x) \leq f(y)$
+
+\end{frame}
+
+% TODO graphs of monotone
+
+
+\begin{frame}[fragile]
+\centering \huge
+Bounded join semilattice
+
+\large
+\begin{haskellcode}
+class Semilattice a where
+  (\/)   :: a -> a -> a
+  bottom :: a
+\end{haskellcode}
+
+Identity: \\
+$x \vee bottom = bottom = bottom \vee x$
+\nl
+
+Commutative: \\
+$x \vee y = y \vee x$
+\nl
+
+Associative: \\
+$x \vee (y \vee z) = (x \vee y) \vee z$
+\nl
+
+Idempotent: \\
+$x \vee x = x$
+
+\end{frame}
+
+
+\begin{frame}[fragile]
+\begin{haskellcode}
+class Semilattice a where
+  (\/)   :: a -> a -> a
+  bottom :: a
+
+instance Eq a => Semilattice (WriteOnce a) where
+  None      \/ b           = b
+  TooMany   \/ x           = TooMany
+  Written a \/ None        = Written a
+  Written a \/ Written b   = Written a
+  Written a \/ TooMany     = TooMany
+\end{haskellcode}
+\end{frame}
+
 
 \begin{frame}
 \huge \centering
