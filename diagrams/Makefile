@@ -1,5 +1,5 @@
 .PHONY: all
-all: clean run
+all: run
 
 .PHONY: run
 run:

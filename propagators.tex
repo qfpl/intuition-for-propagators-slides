@@ -111,6 +111,17 @@
 \end{frame}
 }}
 
+\newcommand{\latticeinfoslide}[1]{{
+\begin{frame}
+\begin{columns}
+\column{0.7\textwidth}
+\includegraphics[scale=0.65]{#1}
+\column{0.3\textwidth}
+\includegraphics[scale=0.5]{set/more-information.pdf}
+\end{columns}
+\end{frame}
+}}
+
 \definecolor{bgc}{RGB}{255, 255, 255}
 \setbeamercolor{background canvas}{bg=bgc}
 
@@ -438,6 +449,13 @@ do
 \end{columns}
 \end{frame}
 
+
+\begin{frame}
+
+TODO: scary giant propagator network
+\end{frame}
+
+
 \begin{frame}
 \centering
 \fontsize{60}{70}\selectfont $?!$
@@ -468,8 +486,8 @@ data WriteOnce a
 
 \begin{onlyenv}<1>
 \begin{haskellcode}
-write ::           a -> WriteOnce a -> WriteOnce a
-write a w = case w of
+tryWrite ::           a -> WriteOnce a -> WriteOnce a
+tryWrite a w = case w of
   None      -> Written a
   Written b -> TooMany
   TooMany   -> TooMany
@@ -478,8 +496,8 @@ write a w = case w of
 
 \begin{onlyenv}<2->
 \begin{haskellcode}
-write :: (Eq a) => a -> WriteOnce a -> WriteOnce a
-write a w = case w of
+tryWrite :: (Eq a) => a -> WriteOnce a -> WriteOnce a
+tryWrite a w = case w of
   None      -> Written a
   Written b -> if a == b then Written b else TooMany
   TooMany   -> TooMany
@@ -491,51 +509,144 @@ write a w = case w of
 \end{frame}
 
 
-\begin{frame}[fragile]
-\centering \huge
-Accumulate information about a value
-\nl
+\begin{frame}
+\Large
 
+Now every network will give a
+{\bf deterministic answer}
+in {\bf finite time}
+\end{frame}
+
+
+\begin{frame}
+
+\centering \LARGE
+
+Mutability is {\bf chaos}
+
+\nl
+WriteOnce is {\bf rigid}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering
+
+{\LARGE
+Accumulate information about a value}
+
+\pnl
 \large
-\begin{overlayarea}{\textwidth}{0.5\textheight}
-\begin{onlyenv}<2>
+\begin{haskellcode}
+                  merge :: a -> a -> a
+\end{haskellcode}
+\end{frame}
+
+
+\begin{frame}[fragile]
 
 \begin{haskellcode}
-
 data WriteOnce a
 
-  -- I don't know anything
-  = None
+  -- I have heard contradictory answers!
+  = TooMany
 
   -- I know the answer exactly
   | Written a
 
-  -- I have heard contradictory answers!
-  | TooMany
+  -- I don't know anything
+  = None
 \end{haskellcode}
+\end{frame}
+
+
+\begin{frame}[fragile]
+
+\begin{overlayarea}{\textwidth}{0.6\textheight}
+
+\begin{minted}{haskell}
+mergeWrites :: WriteOnce a -> WriteOnce a -> WriteOnce a
+\end{minted}
+\begin{onlyenv}<1>
+\begin{minted}[highlightlines={}]{haskell}
+mergeWrites  a            None       = a
+mergeWrites  None         b          = b
+mergeWrites  TooMany      b          = TooMany
+mergeWrites  a            TooMany    = TooMany
+mergeWrites (Written a)  (Written b) = 
+    if a == b then Written a else TooMany
+\end{minted}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{minted}[highlightlines={1,2}]{haskell}
+mergeWrites  a            None       = a
+mergeWrites  None         b          = b
+mergeWrites  TooMany      b          = TooMany
+mergeWrites  a            TooMany    = TooMany
+mergeWrites (Written a)  (Written b) = 
+    if a == b then Written a else TooMany
+\end{minted}
 \end{onlyenv}
 \begin{onlyenv}<3>
-The accumulation must:
-
-\begin{itemize}
-\item tolerate {\bf reordering} of information
-\item tolerate {\bf grouping} of information
-\item ignore {\bf redencancy} of information
-\end{itemize}
+\begin{minted}[highlightlines={3,4}]{haskell}
+mergeWrites  a            None       = a
+mergeWrites  None         b          = b
+mergeWrites  TooMany      b          = TooMany
+mergeWrites  a            TooMany    = TooMany
+mergeWrites (Written a)  (Written b) = 
+    if a == b then Written a else TooMany
+\end{minted}
+\end{onlyenv}
+\begin{onlyenv}<4>
+\begin{minted}[highlightlines={5,6}]{haskell}
+mergeWrites  a            None       = a
+mergeWrites  None         b          = b
+mergeWrites  TooMany      b          = TooMany
+mergeWrites  a            TooMany    = TooMany
+mergeWrites (Written a)  (Written b) = 
+    if a == b then Written a else TooMany
+\end{minted}
 \end{onlyenv}
 \end{overlayarea}
 \end{frame}
 
 
+\imageslide[0.6]{sudoku/sudoku1.png}
+\imageslide[0.6]{sudoku/sudoku2.png}
+\imageslide[0.6]{sudoku/sudoku3.png}
+\imageslide[0.6]{sudoku/sudoku4.png}
+\imageslide[0.6]{sudoku/sudoku5.png}
+\imageslide[0.6]{sudoku/sudoku6.png}
+\imageslide[0.6]{sudoku/sudoku7.png}
+\imageslide[0.6]{sudoku/sudoku8.png}
+\imageslide[0.6]{sudoku/sudoku9.png}
+\imageslide[0.6]{sudoku/sudoku10.png}
+\imageslide[0.6]{sudoku/sudoku11.png}
+\imageslide[0.6]{sudoku/sudoku12.png}
+\imageslide[0.6]{sudoku/sudoku13.png}
+
+
+\begin{frame}
+
+The accumulation must:
+
+\begin{itemize}
+\item tolerate {\bf reordering} of information
+\item tolerate {\bf grouping} of information
+\item ignore {\bf redundancy} of information
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}[fragile]
 \centering \huge
-Bounded join semilattice
+Join semilattice
 \nl
 \large
 
-Identity: \\
-$x \vee bottom = bottom = bottom \vee x$
-\nl
+% Identity: \\
+% $x \vee bottom = bottom = bottom \vee x$
+% \nl
 
 Commutative: \\
 $x \vee y = y \vee x$
@@ -561,7 +672,7 @@ instance (Eq a) => SemiLattice (WriteOnce a) where
   None      \/ b           = b
   TooMany   \/ x           = TooMany
   Written a \/ None        = Written a
-  Written a \/ Written b   = Written a
+  Written a \/ Written b   = if a == b then Written a else TooMany
   Written a \/ TooMany     = TooMany
 \end{haskellcode}
 \end{frame}
@@ -570,10 +681,39 @@ instance (Eq a) => SemiLattice (WriteOnce a) where
 \begin{frame}[fragile]
 \begin{haskellcode}
 instance (Ord a) => Semilattice (Set a) where
-  p \/ q = Set.union p q
+  p \/ q = Set.intersection p q
   bottom = Set.empty
 \end{haskellcode}
 \end{frame}
+
+
+\begin{frame}
+Semilattices are a type of partial order
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+\column{0.7\textwidth}
+\includegraphics[scale=0.65]{set/powerset.pdf}
+\pause
+\column{0.3\textwidth}
+\includegraphics[scale=0.5]{set/more-information.pdf}
+\end{columns}
+\end{frame}
+
+
+\latticeinfoslide{set/powerset-info1.pdf}
+\latticeinfoslide{set/powerset-info2.pdf}
+\latticeinfoslide{set/powerset-info3.pdf}
+\latticeinfoslide{set/powerset-info4.pdf}
+
+\latticeinfoslide{set/powerset1.pdf}
+\latticeinfoslide{set/powerset2.pdf}
+\latticeinfoslide{set/powerset3.pdf}
+\latticeinfoslide{set/powerset4.pdf}
+\latticeinfoslide{set/powerset5.pdf}
+\latticeinfoslide{set/powerset6.pdf}
 
 
 \begin{frame}
