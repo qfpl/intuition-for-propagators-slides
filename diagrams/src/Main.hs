@@ -9,8 +9,8 @@ import Control.Monad.Trans.Class (MonadTrans (lift))
 import Data.Functor (void)
 import Data.List (intercalate)
 import Data.Propagator.Diagram
-import Data.GraphViz.Attributes (rank)
-import Data.GraphViz.Attributes.Complete (Attribute (Weight, MinLen), Number (Int), RankType (SameRank))
+import Data.GraphViz.Attributes (DirType (NoDir), Shape (PlainText), rank, shape, toLabel)
+import Data.GraphViz.Attributes.Complete (Attribute (Dir, MinLen, RankDir, Weight), Number (Int), RankType (SameRank), RankDir (FromTop))
 import Data.GraphViz.Types.Monadic
 import Data.GraphViz.Types.Generalised (DotGraph)
 import Data.Foldable (for_)
@@ -195,11 +195,6 @@ oscillator = mdo
   always $ edge "not1" "snd"
   always $ edge "not3" "fst"
 
-  -- never $ attrs [Weight (Int 10), MinLen 2] $ edge "fst" "snd"
-  -- never $ attrs [Weight (Int 10), MinLen 2] $ edge "fst" "thd"
-  -- never $ attrs [Weight (Int 10), MinLen 3] $ edge "fst" "not2"
-  -- never $ attrs [Weight (Int 10), MinLen 2] $ edge "fst" "not2"
-
   sInput <- slide
   sProp1 <- slide
   sProp2 <- slide
@@ -210,6 +205,51 @@ oscillator = mdo
   sOscillate5 <- slide
 
   pure ()
+
+oscillatorFixed :: Reveal String
+oscillatorFixed = mdo
+
+  lFst <- switchLabels [(sStart, "None"), (sInput, "Written True"), (sOscillate1, "TooMany")]
+  lSnd <- switchLabels [(sStart, "None"), (sProp1, "Written False"), (sOscillate2, "TooMany")]
+  lThd <- switchLabels [(sStart, "None"), (sProp2, "Written True"), (sOscillate3, "TooMany")]
+
+  always $ cell "fst" lFst
+  always $ propagator "not1" "not"
+  always $ propagator "not3" "not"
+  always $ cell "snd" lSnd
+  always $ propagator "not2" "not"
+  always $ cell "thd" lThd
+  always $ edge "snd" "not2"
+  always $ edge "not2" "thd"
+  always $ edge "thd" "not3"
+  always $ edge "fst" "not1"
+  always $ edge "not1" "snd"
+  always $ edge "not3" "fst"
+
+  sStart <- slide
+  sInput <- slide
+  sProp1 <- slide
+  sProp2 <- slide
+  sOscillate1 <- slide
+  sOscillate2 <- slide
+  sOscillate3 <- slide
+
+  pure ()
+  
+writeOnceBool :: Reveal String
+writeOnceBool = lift $ do
+  graphAttrs [RankDir FromTop]
+  let textNode name val = node name [toLabel val, shape PlainText]
+
+  textNode "top" "TooMany"
+  textNode "true" "Written True  "
+  textNode "false" "  Written False"
+  textNode "bottom" "None"
+
+  edge "top" "true" [Dir NoDir]
+  edge "top" "false" [Dir NoDir]
+  edge "true" "bottom" [Dir NoDir]
+  edge "false" "bottom" [Dir NoDir]
 
 ------
 
@@ -241,6 +281,8 @@ diagrams =
   , ("build-adder", buildAdder)
   , ("bidirectional-adder", biAdder)
   , ("oscillator", oscillator)
+  , ("oscillator-fixed", oscillatorFixed)
+  , ("writeonce-bool", writeOnceBool)
   ]
 
 main :: IO ()
@@ -258,17 +300,23 @@ dodgyFixups = do
   system $ "sed -i -e 's/not1\\ \\[label\\=not\\,shape\\=square\\]\\;/\\{rank\\=same\\;\\ not1\\ \\[label\\=not\\,shape\\=square\\]\\;/' oscillator*.dot"
   system $ "sed -i -e 's/not3\\ \\[label\\=not\\,shape\\=square\\]\\;/not3\\ \\[label\\=not\\,shape\\=square\\]\\;\\}\\{rank\\=same\\;/' oscillator*.dot"
   system $ "sed -i -e 's/not2\\ \\->\\ thd\\;/not2\\ \\->\\ thd\\;\\}/' oscillator*.dot"
-  let fs :: [Int]
-      fs = [0..8]
-  for_ fs $ \n -> do
-    let fndot = "oscillator" <> show n <> ".dot"
-    let fnpdf = "oscillator" <> show n <> ".pdf"
-    let space = " "
-    void $ system $ intercalate space
-      [ "dot"
-      , fndot
-      , "-Tpdf"
-      , "-o"
-      , fnpdf
-      ]
 
+  let
+    make name n =
+      let
+        fndot = name <> show n <> ".dot"
+        fnpdf = name <> show n <> ".pdf"
+        space = " "
+      in
+        void $ system $ intercalate space
+          [ "dot"
+          , fndot
+          , "-Tpdf"
+          , "-o"
+          , fnpdf
+          ]
+
+  let bads  = [0..8] :: [Int]
+  for_ bads  $ make "oscillator"
+  let goods = [1..7] :: [Int]
+  for_ goods $ make "oscillator-fixed" 

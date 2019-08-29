@@ -117,7 +117,7 @@
 \column{0.7\textwidth}
 \includegraphics[scale=0.65]{#1}
 \column{0.3\textwidth}
-\includegraphics[scale=0.5]{set/more-information.pdf}
+\includegraphics[scale=1.2]{set/more-info.pdf}
 \end{columns}
 \end{frame}
 }}
@@ -396,7 +396,6 @@ do
 \end{column}
 \end{columns}
 \end{frame}
-% TODO make numbers jump around to demonstrate the watch problem
 
 
 \begin{frame}[fragile]
@@ -450,10 +449,15 @@ do
 \end{frame}
 
 
-\begin{frame}
-
-TODO: scary giant propagator network
-\end{frame}
+\imageslide{oscillator0.pdf}
+\imageslide{oscillator1.pdf}
+\imageslide{oscillator2.pdf}
+\imageslide{oscillator3.pdf}
+\imageslide{oscillator4.pdf}
+\imageslide{oscillator5.pdf}
+\imageslide{oscillator6.pdf}
+\imageslide{oscillator7.pdf}
+\imageslide{oscillator8.pdf}
 
 
 \begin{frame}
@@ -467,18 +471,6 @@ TODO: scary giant propagator network
 \centering \huge
 
 How can we fix this?
-\end{frame}
-
-
-\begin{frame}
-
-To be deterministic we must
-
-\begin{itemize}
-\item tolerate {\bf reordering} of writes
-\item tolerate {\bf grouping} of writes
-\item ignore {\bf redundancy} of writes
-\end{itemize}
 \end{frame}
 
 
@@ -496,7 +488,7 @@ data WriteOnce a
 
 \nl
 
-\begin{onlyenv}<1>
+\begin{onlyenv}<2>
 \begin{haskellcode}
 tryWrite ::           a -> WriteOnce a -> WriteOnce a
 tryWrite a w = case w of
@@ -506,7 +498,7 @@ tryWrite a w = case w of
 \end{haskellcode}
 \end{onlyenv}
 
-\begin{onlyenv}<2->
+\begin{onlyenv}<3->
 \begin{haskellcode}
 tryWrite :: (Eq a) => a -> WriteOnce a -> WriteOnce a
 tryWrite a w = case w of
@@ -521,13 +513,13 @@ tryWrite a w = case w of
 \end{frame}
 
 
-\begin{frame}
-\Large
-
-Now every network will give a
-{\bf deterministic answer}
-in {\bf finite time}
-\end{frame}
+\imageslide{oscillator-fixed1.pdf}
+\imageslide{oscillator-fixed2.pdf}
+\imageslide{oscillator-fixed3.pdf}
+\imageslide{oscillator-fixed4.pdf}
+\imageslide{oscillator-fixed5.pdf}
+\imageslide{oscillator-fixed6.pdf}
+\imageslide{oscillator-fixed7.pdf}
 
 
 \begin{frame}
@@ -542,17 +534,25 @@ WriteOnce is {\bf rigid}
 
 
 \begin{frame}[fragile]
-\centering
 
-{\LARGE
-Accumulate information about a value}
+\LARGE
+\begin{center}
+Accumulate information about a value
 
-% \pnl
-% \large
-% \begin{haskellcode}
-%                   merge :: a -> a -> a
-% \end{haskellcode}
+\pnl
+
+{\bf monotonically}
+\end{center}
 \end{frame}
+
+
+% \begin{frame}
+% \Large
+
+% Now every network will give a
+% {\bf deterministic answer}
+% in {\bf finite time}
+% \end{frame}
 
 
 \begin{frame}[fragile]
@@ -570,10 +570,10 @@ data WriteOnce a
   | None
 \end{haskellcode}
 
-\pnl
+% \pnl
 
-\centering \Large
-{\bf Monotonic} growth
+% \centering \Large
+% {\bf Monotonic} growth
 
 \end{frame}
 
@@ -650,7 +650,7 @@ data WriteOnce a
 \includegraphics[scale=0.65]{set/powerset.pdf}
 \pause
 \column{0.3\textwidth}
-\includegraphics[scale=0.5]{set/more-information.pdf}
+\includegraphics[scale=1.2]{set/more-info.pdf}
 \end{columns}
 \end{frame}
 
@@ -676,6 +676,17 @@ data WriteOnce a
 % \item tolerate {\bf reordering} of information
 % \item tolerate {\bf grouping} of information
 % \item ignore {\bf redundancy} of information
+% \end{itemize}
+% \end{frame}
+
+% \begin{frame}
+
+% To be deterministic we must
+
+% \begin{itemize}
+% \item tolerate {\bf reordering} of writes
+% \item tolerate {\bf grouping} of writes
+% \item ignore {\bf redundancy} of writes
 % \end{itemize}
 % \end{frame}
 
@@ -714,7 +725,7 @@ class SemiLattice a where
 \end{haskellcode}
 \nl
 
-\begin{onlyenv}<1>
+\begin{onlyenv}<2>
 \begin{haskellcode}
 instance (Eq a) => SemiLattice (WriteOnce a) where
   None      \/ b           = b
@@ -724,7 +735,7 @@ instance (Eq a) => SemiLattice (WriteOnce a) where
   Written a \/ Written b   = if a == b then Written a else TooMany
 \end{haskellcode}
 \end{onlyenv}
-\begin{onlyenv}<2>
+\begin{onlyenv}<3>
 \begin{haskellcode}
 data SudokuVal = One | Two | Three | Four deriving (Eq, Ord)
 
@@ -740,27 +751,33 @@ instance Semilattice Possibilities where
 
 
 \begin{frame}
-Monotonicity gives us 
+\begin{columns}
+\column{0.7\textwidth}
+\includegraphics{writeonce-bool0.pdf}
+\column{0.3\textwidth}
+\includegraphics[scale=1.3]{set/more-info.pdf}
+\end{columns}
 \end{frame}
 
-% \begin{frame}
-% Semilattices are a type of partial order
-% \end{frame}
+
+\begin{frame}
+Cells hold semilattices
+\end{frame}
 
 
-% \begin{frame}
+\begin{frame}
 
-% \centering \huge
-% Monotonicity
-% \nl
+\centering \huge
+Monotonicity
+\nl
 
-% \Large
+\Large
+$f$ is monotone if\\
+\nl
 
-% $ x \leq y \implies f(x) \leq f(y)$
+$ x \leq y \implies f(x) \leq f(y)$
 
-% \end{frame}
-
-% TODO? graphs of monotone
+\end{frame}
 
 
 \begin{frame}
@@ -770,6 +787,7 @@ Thanks for listening!
 
 \large
 (Real) code for all these examples and more:
+
 \url{https://github.com/qfpl/propagator-examples}
 
 \end{frame}
