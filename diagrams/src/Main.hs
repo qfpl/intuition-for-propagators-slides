@@ -175,6 +175,44 @@ biAdder = mdo
 
   pure ()
 
+oscillator :: Reveal String
+oscillator = mdo
+
+  lFst <- switchLabels [(sInput, "True"), (sOscillate1, "False"), (sOscillate4, "True")]
+  lSnd <- switchLabels [(sProp1, "False"), (sOscillate2, "True"), (sOscillate5, "False")]
+  lThd <- switchLabels [(sProp2, "True"), (sOscillate3, "False")]
+
+  always $ cell "fst" lFst
+  always $ propagator "not1" "not"
+  always $ propagator "not3" "not"
+  always $ cell "snd" lSnd
+  always $ propagator "not2" "not"
+  always $ cell "thd" lThd
+  always $ edge "snd" "not2"
+  always $ edge "not2" "thd"
+  always $ edge "thd" "not3"
+  always $ edge "fst" "not1"
+  always $ edge "not1" "snd"
+  always $ edge "not3" "fst"
+
+  -- never $ attrs [Weight (Int 10), MinLen 2] $ edge "fst" "snd"
+  -- never $ attrs [Weight (Int 10), MinLen 2] $ edge "fst" "thd"
+  -- never $ attrs [Weight (Int 10), MinLen 3] $ edge "fst" "not2"
+  -- never $ attrs [Weight (Int 10), MinLen 2] $ edge "fst" "not2"
+
+  sInput <- slide
+  sProp1 <- slide
+  sProp2 <- slide
+  sOscillate1 <- slide
+  sOscillate2 <- slide
+  sOscillate3 <- slide
+  sOscillate4 <- slide
+  sOscillate5 <- slide
+
+  pure ()
+
+------
+
 render :: Reveal s -> [DotGraph s]
 render diagram =
   (\i a -> digraph_ (show i) a) `imap` runReveal True diagram
@@ -202,7 +240,35 @@ diagrams =
   , ("intro-adder", introAdder)
   , ("build-adder", buildAdder)
   , ("bidirectional-adder", biAdder)
+  , ("oscillator", oscillator)
   ]
 
 main :: IO ()
-main = for_ diagrams (uncurry build)
+main = do
+  for_ diagrams (uncurry build)
+  dodgyFixups
+
+
+----------------------------------------
+-- Abandon all hope ye who enter here --
+----------------------------------------
+
+dodgyFixups :: IO ()
+dodgyFixups = do
+  system $ "sed -i -e 's/not1\\ \\[label\\=not\\,shape\\=square\\]\\;/\\{rank\\=same\\;\\ not1\\ \\[label\\=not\\,shape\\=square\\]\\;/' oscillator*.dot"
+  system $ "sed -i -e 's/not3\\ \\[label\\=not\\,shape\\=square\\]\\;/not3\\ \\[label\\=not\\,shape\\=square\\]\\;\\}\\{rank\\=same\\;/' oscillator*.dot"
+  system $ "sed -i -e 's/not2\\ \\->\\ thd\\;/not2\\ \\->\\ thd\\;\\}/' oscillator*.dot"
+  let fs :: [Int]
+      fs = [0..8]
+  for_ fs $ \n -> do
+    let fndot = "oscillator" <> show n <> ".dot"
+    let fnpdf = "oscillator" <> show n <> ".pdf"
+    let space = " "
+    void $ system $ intercalate space
+      [ "dot"
+      , fndot
+      , "-Tpdf"
+      , "-o"
+      , fnpdf
+      ]
+

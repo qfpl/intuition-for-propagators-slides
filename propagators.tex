@@ -183,10 +183,10 @@ a model of computation for {\bf highly concurrent} machines
 \begin{frame}[fragile]
 \begin{haskellcode}
 -- types
-data Cell a
-
 data Par a
 instance Monad Par
+
+data Cell a
 \end{haskellcode}
 \pnl
 \begin{haskellcode}
@@ -470,6 +470,18 @@ How can we fix this?
 \end{frame}
 
 
+\begin{frame}
+
+To be deterministic we must
+
+\begin{itemize}
+\item tolerate {\bf reordering} of writes
+\item tolerate {\bf grouping} of writes
+\item ignore {\bf redundancy} of writes
+\end{itemize}
+\end{frame}
+
+
 \begin{frame}[fragile]
 \begin{columns}
 \column{0.1\textwidth}
@@ -535,11 +547,11 @@ WriteOnce is {\bf rigid}
 {\LARGE
 Accumulate information about a value}
 
-\pnl
-\large
-\begin{haskellcode}
-                  merge :: a -> a -> a
-\end{haskellcode}
+% \pnl
+% \large
+% \begin{haskellcode}
+%                   merge :: a -> a -> a
+% \end{haskellcode}
 \end{frame}
 
 
@@ -555,60 +567,66 @@ data WriteOnce a
   | Written a
 
   -- I don't know anything
-  = None
+  | None
 \end{haskellcode}
+
+\pnl
+
+\centering \Large
+{\bf Monotonic} growth
+
 \end{frame}
 
 
-\begin{frame}[fragile]
+% \begin{frame}[fragile]
 
-\begin{overlayarea}{\textwidth}{0.6\textheight}
+% \begin{overlayarea}{\textwidth}{0.6\textheight}
 
-\begin{minted}{haskell}
-mergeWrites :: WriteOnce a -> WriteOnce a -> WriteOnce a
-\end{minted}
-\begin{onlyenv}<1>
-\begin{minted}[highlightlines={}]{haskell}
-mergeWrites  a            None       = a
-mergeWrites  None         b          = b
-mergeWrites  TooMany      b          = TooMany
-mergeWrites  a            TooMany    = TooMany
-mergeWrites (Written a)  (Written b) = 
-    if a == b then Written a else TooMany
-\end{minted}
-\end{onlyenv}
-\begin{onlyenv}<2>
-\begin{minted}[highlightlines={1,2}]{haskell}
-mergeWrites  a            None       = a
-mergeWrites  None         b          = b
-mergeWrites  TooMany      b          = TooMany
-mergeWrites  a            TooMany    = TooMany
-mergeWrites (Written a)  (Written b) = 
-    if a == b then Written a else TooMany
-\end{minted}
-\end{onlyenv}
-\begin{onlyenv}<3>
-\begin{minted}[highlightlines={3,4}]{haskell}
-mergeWrites  a            None       = a
-mergeWrites  None         b          = b
-mergeWrites  TooMany      b          = TooMany
-mergeWrites  a            TooMany    = TooMany
-mergeWrites (Written a)  (Written b) = 
-    if a == b then Written a else TooMany
-\end{minted}
-\end{onlyenv}
-\begin{onlyenv}<4>
-\begin{minted}[highlightlines={5,6}]{haskell}
-mergeWrites  a            None       = a
-mergeWrites  None         b          = b
-mergeWrites  TooMany      b          = TooMany
-mergeWrites  a            TooMany    = TooMany
-mergeWrites (Written a)  (Written b) = 
-    if a == b then Written a else TooMany
-\end{minted}
-\end{onlyenv}
-\end{overlayarea}
-\end{frame}
+% \begin{minted}{haskell}
+% mergeWrites :: WriteOnce a -> WriteOnce a -> WriteOnce a
+% \end{minted}
+% \begin{onlyenv}<1>
+% \begin{minted}[highlightlines={}]{haskell}
+% mergeWrites  a            None       = a
+% mergeWrites  None         b          = b
+% mergeWrites  TooMany      b          = TooMany
+% mergeWrites  a            TooMany    = TooMany
+% mergeWrites (Written a)  (Written b) = 
+%     if a == b then Written a else TooMany
+% \end{minted}
+% \end{onlyenv}
+% \begin{onlyenv}<2>
+% \begin{minted}[highlightlines={1,2}]{haskell}
+% mergeWrites  a            None       = a
+% mergeWrites  None         b          = b
+% mergeWrites  TooMany      b          = TooMany
+% mergeWrites  a            TooMany    = TooMany
+% mergeWrites (Written a)  (Written b) = 
+%     if a == b then Written a else TooMany
+% \end{minted}
+% \end{onlyenv}
+% \begin{onlyenv}<3>
+% \begin{minted}[highlightlines={3,4}]{haskell}
+% mergeWrites  a            None       = a
+% mergeWrites  None         b          = b
+% mergeWrites  TooMany      b          = TooMany
+% mergeWrites  a            TooMany    = TooMany
+% mergeWrites (Written a)  (Written b) = 
+%     if a == b then Written a else TooMany
+% \end{minted}
+% \end{onlyenv}
+% \begin{onlyenv}<4>
+% \begin{minted}[highlightlines={5,6}]{haskell}
+% mergeWrites  a            None       = a
+% mergeWrites  None         b          = b
+% mergeWrites  TooMany      b          = TooMany
+% mergeWrites  a            TooMany    = TooMany
+% mergeWrites (Written a)  (Written b) = 
+%     if a == b then Written a else TooMany
+% \end{minted}
+% \end{onlyenv}
+% \end{overlayarea}
+% \end{frame}
 
 
 \imageslide[0.6]{sudoku/sudoku1.png}
@@ -624,72 +642,6 @@ mergeWrites (Written a)  (Written b) =
 \imageslide[0.6]{sudoku/sudoku11.png}
 \imageslide[0.6]{sudoku/sudoku12.png}
 \imageslide[0.6]{sudoku/sudoku13.png}
-
-
-\begin{frame}
-
-The accumulation must:
-
-\begin{itemize}
-\item tolerate {\bf reordering} of information
-\item tolerate {\bf grouping} of information
-\item ignore {\bf redundancy} of information
-\end{itemize}
-\end{frame}
-
-
-\begin{frame}[fragile]
-\centering \huge
-Join semilattice
-\nl
-\large
-
-% Identity: \\
-% $x \vee bottom = bottom = bottom \vee x$
-% \nl
-
-Commutative: \\
-$x \vee y = y \vee x$
-\nl
-
-Associative: \\
-$x \vee (y \vee z) = (x \vee y) \vee z$
-\nl
-
-Idempotent: \\
-$x \vee x = x$
-
-\end{frame}
-
-
-\begin{frame}[fragile]
-\begin{haskellcode}
-class SemiLattice a where
-  (\/)   :: a -> a -> a
-  bottom :: a
-
-instance (Eq a) => SemiLattice (WriteOnce a) where
-  None      \/ b           = b
-  TooMany   \/ x           = TooMany
-  Written a \/ None        = Written a
-  Written a \/ Written b   = if a == b then Written a else TooMany
-  Written a \/ TooMany     = TooMany
-\end{haskellcode}
-\end{frame}
-
-
-\begin{frame}[fragile]
-\begin{haskellcode}
-instance (Ord a) => Semilattice (Set a) where
-  p \/ q = Set.intersection p q
-  bottom = Set.empty
-\end{haskellcode}
-\end{frame}
-
-
-\begin{frame}
-Semilattices are a type of partial order
-\end{frame}
 
 
 \begin{frame}
@@ -716,24 +668,110 @@ Semilattices are a type of partial order
 \latticeinfoslide{set/powerset6.pdf}
 
 
-\begin{frame}
+% \begin{frame}
 
+% The accumulation must:
+
+% \begin{itemize}
+% \item tolerate {\bf reordering} of information
+% \item tolerate {\bf grouping} of information
+% \item ignore {\bf redundancy} of information
+% \end{itemize}
+% \end{frame}
+
+
+\begin{frame}[fragile]
 \centering \huge
-Monotonicity
+Bounded join semilattice
+\nl
+\large
+
+Identity: \\
+$x \vee bottom = bottom = bottom \vee x$
 \nl
 
-\Large
+Associative: \\
+$x \vee (y \vee z) = (x \vee y) \vee z$
+\nl
 
-$ x \leq y \implies f(x) \leq f(y)$
+Commutative: \\
+$x \vee y = y \vee x$
+\nl
+
+Idempotent: \\
+$x \vee x = x$
 
 \end{frame}
 
-% TODO graphs of monotone
+
+\begin{frame}[fragile]
+
+\begin{overlayarea}{\textwidth}{0.5\textheight}
+\begin{haskellcode}
+class SemiLattice a where
+  (\/)   :: a -> a -> a
+  bottom :: a
+\end{haskellcode}
+\nl
+
+\begin{onlyenv}<1>
+\begin{haskellcode}
+instance (Eq a) => SemiLattice (WriteOnce a) where
+  None      \/ b           = b
+  TooMany   \/ x           = TooMany
+  Written a \/ None        = Written a
+  Written a \/ TooMany     = TooMany
+  Written a \/ Written b   = if a == b then Written a else TooMany
+\end{haskellcode}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\begin{haskellcode}
+data SudokuVal = One | Two | Three | Four deriving (Eq, Ord)
+
+data Possibilities = Pos (Set SudokuVal)
+
+instance Semilattice Possibilities where
+  Pos p \/ Pos q = Pos (Set.intersection p q)
+  bottom = Pos (Set.fromList [One,Two,Three,Four])
+\end{haskellcode}
+\end{onlyenv}
+\end{overlayarea}
+\end{frame}
+
+
+\begin{frame}
+Monotonicity gives us 
+\end{frame}
+
+% \begin{frame}
+% Semilattices are a type of partial order
+% \end{frame}
+
+
+% \begin{frame}
+
+% \centering \huge
+% Monotonicity
+% \nl
+
+% \Large
+
+% $ x \leq y \implies f(x) \leq f(y)$
+
+% \end{frame}
+
+% TODO? graphs of monotone
 
 
 \begin{frame}
 \huge \centering
 Thanks for listening!
+\nl
+
+\large
+(Real) code for all these examples and more:
+\url{https://github.com/qfpl/propagator-examples}
+
 \end{frame}
 
 
