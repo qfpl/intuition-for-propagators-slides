@@ -175,6 +175,45 @@ biAdder = mdo
 
   pure ()
 
+biAdder2 :: Reveal String
+biAdder2 = mdo
+
+  bunch 0 $ do
+    lift $ graphAttrs [rank SameRank]
+    always $ cell "inL" ""
+    always $ cell "inR" ""
+
+  bunch 1 $ do
+    lift $ graphAttrs [rank SameRank]
+    reveal sMulti $ propagator "sub1" "-"
+    reveal sSingle $ propagator "add" "+"
+    reveal sMulti $ propagator "sub2" "-"
+
+  bunch 2 $ do
+    lift $ graphAttrs [rank SameRank]
+    always $ cell "out" ""
+
+  reveal sSingle $ attrs [Weight (Int 50)] $ edge "inL" "add"
+  reveal sSingle $ attrs [Weight (Int 50)] $ edge "inR" "add"
+  reveal sSingle $ attrs [Weight (Int 50)] $ edge "add" "out"
+
+  reveal sMulti $ edge "out" "sub1"
+  reveal sMulti $ edge "inL" "sub1"
+  reveal sMulti $ edge "sub1" "inR"
+
+  reveal sMulti $ edge "out" "sub2"
+  reveal sMulti $ edge "inR" "sub2"
+  reveal sMulti $ edge "sub2" "inL"
+
+  never $ attrs [Weight (Int 0), MinLen 2] $ edge "inL" "out"
+  never $ attrs [Weight (Int 0), MinLen 2] $ edge "inR" "out"
+
+  sSingle <- slide
+  sMulti <- slide
+
+  pure ()
+
+
 oscillator :: Reveal String
 oscillator = mdo
 
@@ -280,6 +319,7 @@ diagrams =
   , ("intro-adder", introAdder)
   , ("build-adder", buildAdder)
   , ("bidirectional-adder", biAdder)
+  , ("build-bidirectional-adder", biAdder2)
   , ("oscillator", oscillator)
   , ("oscillator-fixed", oscillatorFixed)
   , ("writeonce-bool", writeOnceBool)

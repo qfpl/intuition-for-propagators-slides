@@ -285,10 +285,13 @@ do
 \nl
 \begin{overlayarea}{0.5\textwidth}{0.4\textheight}
 \begin{onlyenv}<1>
-\includegraphics[scale=0.9]{build-adder0.pdf}
+\includegraphics[scale=0.9]{build-bidirectional-adder0.pdf}
 \end{onlyenv}
-\begin{onlyenv}<2->
-\includegraphics[scale=0.9]{build-adder1.pdf}
+\begin{onlyenv}<2>
+\includegraphics[scale=0.9]{build-bidirectional-adder1.pdf}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\includegraphics[scale=0.9]{build-bidirectional-adder2.pdf}
 \end{onlyenv}
 \end{overlayarea}
 \end{column}
@@ -439,6 +442,21 @@ Accumulate information about a value
 \end{frame}
 
 
+\begin{frame}
+
+\centering \huge
+Monotonicity
+\nl
+
+\Large
+$f$ is monotone if\\
+\nl
+
+$ x \leq y \implies f(x) \leq f(y)$
+
+\end{frame}
+
+
 % \begin{frame}
 % \Large
 
@@ -537,51 +555,6 @@ Accumulate information about a value
 
 
 \begin{frame}[fragile]
-
-\begin{overlayarea}{\textwidth}{0.5\textheight}
-\begin{haskellcode}
-class SemiLattice a where
-  (\/)   :: a -> a -> a
-  bottom :: a
-\end{haskellcode}
-\nl
-
-\begin{onlyenv}<2>
-\begin{haskellcode}
-instance (Eq a) => SemiLattice (WriteOnce a) where
-  None      \/ b           = b
-  TooMany   \/ x           = TooMany
-  Written a \/ None        = Written a
-  Written a \/ TooMany     = TooMany
-  Written a \/ Written b   = if a == b then Written a else TooMany
-\end{haskellcode}
-\end{onlyenv}
-\begin{onlyenv}<3>
-\begin{haskellcode}
-data SudokuVal = One | Two | Three | Four deriving (Eq, Ord)
-
-data Possibilities = Pos (Set SudokuVal)
-
-instance Semilattice Possibilities where
-  Pos p \/ Pos q = Pos (Set.intersection p q)
-  bottom = Pos (Set.fromList [One,Two,Three,Four])
-\end{haskellcode}
-\end{onlyenv}
-\end{overlayarea}
-\end{frame}
-
-
-\begin{frame}
-\begin{columns}
-\column{0.7\textwidth}
-\includegraphics{writeonce-bool0.pdf}
-\column{0.3\textwidth}
-\includegraphics[scale=1.3]{set/more-info.pdf}
-\end{columns}
-\end{frame}
-
-
-\begin{frame}[fragile]
 \centering \huge
 Bounded join semilattice
 \nl
@@ -605,39 +578,75 @@ $x \vee x = x$
 \end{frame}
 
 
+\begin{frame}[fragile]
+
+\begin{overlayarea}{\textwidth}{0.5\textheight}
+\begin{haskellcode}
+class SemiLattice a where
+  (\/)   :: a -> a -> a
+  bottom :: a
+\end{haskellcode}
+\nl
+
+\begin{onlyenv}<2-3>
+\begin{haskellcode}
+data SudokuVal = One | Two | Three | Four
+  deriving (Eq, Ord)
+
+data Possibilities = P (Set SudokuVal)
+\end{haskellcode}
+\end{onlyenv}
+\nl
+\begin{onlyenv}<3>
+\begin{haskellcode}
+instance Semilattice Possibilities where
+  P p \/ P q = P (Set.intersection p q)
+  bottom = P (Set.fromList [One,Two,Three,Four])
+\end{haskellcode}
+\end{onlyenv}
+% \begin{onlyenv}<4>
+% \begin{haskellcode}
+% instance (Eq a) => SemiLattice (WriteOnce a) where
+%   None      \/ b           = b
+%   TooMany   \/ x           = TooMany
+%   Written a \/ None        = Written a
+%   Written a \/ TooMany     = TooMany
+%   Written a \/ Written b   = if a == b then Written a else TooMany
+% \end{haskellcode}
+% \end{onlyenv}
+\end{overlayarea}
+\end{frame}
+
+
+\begin{frame}
+\begin{columns}
+\column{0.7\textwidth}
+\includegraphics{writeonce-bool0.pdf}
+\column{0.3\textwidth}
+\includegraphics[scale=1.3]{set/more-info.pdf}
+\end{columns}
+\end{frame}
+
+
 \begin{frame}
 \LARGE \centering
 
 Cells hold semilattices
 
-Propagators always join information in
+Propagators join information in
 \end{frame}
 
 
 \begin{frame}
 
 \centering
-WriteOnce (aka IVar, Promise) \\
+WriteOnce \\
 Sets (intersection or union) \\
 Intervals \\
 Search \\
-many many more
+Unification \\
+many more
 \end{frame}
-
-
-% \begin{frame}
-
-% \centering \huge
-% Monotonicity
-% \nl
-
-% \Large
-% $f$ is monotone if\\
-% \nl
-
-% $ x \leq y \implies f(x) \leq f(y)$
-
-% \end{frame}
 
 
 \begin{frame}
