@@ -163,7 +163,7 @@ CSIRO's Data61\\
 \begin{frame}
 
 \Large \centering
-a model of computation for {\bf highly concurrent} machines
+a model of computation for {\bf highly parallel} machines
 \end{frame}
 
 
@@ -230,8 +230,9 @@ watch   :: Cell a -> (a -> Par ()) -> Par ()
 \end{onlyenv}
 \end{overlayarea}
 \end{column}
+
 \begin{column}{0.5\textwidth}
-\begin{overlayarea}{\textwidth}{0.5\textheight}
+\begin{overlayarea}{\textwidth}{0.3\textheight}
 \begin{onlyenv}<1->
 \begin{haskellcode}
 do
@@ -255,10 +256,17 @@ do
     write output (toUpper c))
 \end{minted}
 \end{onlyenv}
-
-\nl
+\begin{onlyenv}<7>
+\begin{minted}[highlightlines={1}]{haskell}
+  lift toUpper input output
+\end{minted}
+\end{onlyenv}
+\end{overlayarea}
+\begin{overlayarea}{\textwidth}{0.2\textheight}
+% \nl
 \begin{onlyenv}<4->
 \begin{haskellcode}
+  -- run the network
   write input 'q'
   content output   -- Just 'Q'
 \end{haskellcode}
@@ -270,52 +278,11 @@ do
 
 
 \begin{frame}[fragile]
-\begin{haskellcode}
-          lift :: (a -> b) -> Cell a -> Cell b -> Par ()
-          lift f input output =
-            watch input (\a ->
-              write output (f a))
-\end{haskellcode}
-\end{frame}
-
-
-\begin{frame}[fragile]
 \centering
 
 \begin{columns}
 \begin{column}{0.5\textwidth}
-\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
-\includegraphics[scale=0.8]{intro-toUpper4.pdf}
-\end{overlayarea}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  input  <- cell
-\end{haskellcode}
-\begin{haskellcode}
-  output <- cell
-\end{haskellcode}
-\begin{minted}[highlightlines=1]{haskell}
-  lift toUpper input output
-\end{minted}
 \nl
-\begin{haskellcode}
-  write input 'q'
-  content output   -- Just 'Q'
-\end{haskellcode}
-\end{column}
-\end{columns}
-
-\end{frame}
-
-
-\begin{frame}[fragile]
-\centering
-
-
-\begin{columns}
-\begin{column}{0.5\textwidth}
 \begin{overlayarea}{0.5\textwidth}{0.4\textheight}
 \begin{onlyenv}<1>
 \includegraphics[scale=0.9]{build-adder0.pdf}
@@ -325,128 +292,54 @@ do
 \end{onlyenv}
 \end{overlayarea}
 \end{column}
+
 \begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.3\textheight}
+\begin{onlyenv}<1->
 \begin{haskellcode}
 do
   inL  <- cell
   inR  <- cell
   out  <- cell
 \end{haskellcode}
-\pnl
-\begin{haskellcode}
-  watch inL (\x -> do
-    maybeY <- content inR
-    case maybeY of
-      Nothing -> pure ()
-      Just y  -> write out (x+y)
-\end{haskellcode}
-\pnl
-\begin{haskellcode}
-  watch inR (\y -> do
-    maybeX <- content inL
-    case maybeX of
-      Nothing -> pure ()
-      Just x  -> write out (x+y)
-\end{haskellcode}
-\end{column}
-\end{columns}
-\end{frame}
-
-
-\begin{frame}[fragile]
-\begin{haskellcode}
-          with :: Cell a -> (a -> Par ()) -> Par ()
-          with theCell callback = do
-            maybeA <- content theCell
-              case maybeA of
-                Nothing -> pure ()
-                Just a  -> callback a
-\end{haskellcode}
-\end{frame}
-
-
-\begin{frame}[fragile]
-\centering
-
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
-\includegraphics[scale=0.8]{build-adder1.pdf}
-\end{overlayarea}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  inL  <- cell
-  inR  <- cell
-  out  <- cell
-\end{haskellcode}
+\end{onlyenv}
 \nl
-\begin{haskellcode}
-  watch inL (\x ->
-    with inR (\y ->
-      write out (x+y)
-\end{haskellcode}
-\pnl
-\begin{haskellcode}
-  watch inR (\y ->
-    with inL (\x ->
-      write out (x+y)
-\end{haskellcode}
-\end{column}
-\end{columns}
-\end{frame}
-
-
-\begin{frame}[fragile]
-\begin{haskellcode}
-          lift2 :: (a -> b -> c)
-                -> Cell a -> Cell b -> Cell c
-                -> Par ()
-\end{haskellcode}
-\pause
-\begin{haskellcode}
-          lift2 f inL inR out = do
-            watch inL (\a ->
-              with inR (\b ->
-                write out (f a b)))
-            watch inR (\b ->
-              with inL (\a ->
-                write out (f a b)))
-\end{haskellcode}
-
-\end{frame}
-
-
-\begin{frame}[fragile]
-\centering
-
-\begin{columns}
-\begin{column}{0.5\textwidth}
-\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
-\includegraphics[scale=0.8]{build-adder1.pdf}
-\end{overlayarea}
-\end{column}
-\begin{column}{0.5\textwidth}
-\begin{haskellcode}
-do
-  inL  <- cell
-  inR  <- cell
-  out  <- cell
-\end{haskellcode}
-\nl
+\begin{onlyenv}<2->
 \begin{haskellcode}
   adder inL inR out
+\end{haskellcode}
+\end{onlyenv}
+\end{overlayarea}
 
+\begin{overlayarea}{0.5\textwidth}{0.3\textheight}
+\invisible{phantom}
+\begin{onlyenv}<2>
+\begin{haskellcode}
+    where
+      adder l r o = do
+        lift2 (+) l r o
+\end{haskellcode}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\begin{haskellcode}
     where
       adder l r o = do
         lift2 (+) l r o
         lift2 (-) o l r
         lift2 (-) o r l
 \end{haskellcode}
+\end{onlyenv}
+\end{overlayarea}
 \end{column}
+
 \end{columns}
 \end{frame}
+
+
+\imageslide[0.8]{celsius/celsius5.pdf}
+\imageslide[0.8]{celsius/celsius6.pdf}
+\imageslide[0.8]{celsius/celsius7.pdf}
+\imageslide[0.8]{celsius/celsius8.pdf}
 
 
 \imageslide{oscillator0.pdf}
@@ -557,76 +450,28 @@ Accumulate information about a value
 
 \begin{frame}[fragile]
 
-\begin{haskellcode}
-data WriteOnce a
+\begin{columns}
 
+\begin{column}{0.3\textwidth}
+\includegraphics[scale=1.3]{set/more-info.pdf}
+\end{column}
+
+\begin{column}{0.6\textwidth}
+\begin{haskellcode}
   -- I have heard contradictory answers!
-  = TooMany
+    TooMany
 
   -- I know the answer exactly
-  | Written a
+    Written a
 
   -- I don't know anything
-  | None
+    None
 \end{haskellcode}
 
-% \pnl
+\end{column}
 
-% \centering \Large
-% {\bf Monotonic} growth
-
+\end{columns}
 \end{frame}
-
-
-% \begin{frame}[fragile]
-
-% \begin{overlayarea}{\textwidth}{0.6\textheight}
-
-% \begin{minted}{haskell}
-% mergeWrites :: WriteOnce a -> WriteOnce a -> WriteOnce a
-% \end{minted}
-% \begin{onlyenv}<1>
-% \begin{minted}[highlightlines={}]{haskell}
-% mergeWrites  a            None       = a
-% mergeWrites  None         b          = b
-% mergeWrites  TooMany      b          = TooMany
-% mergeWrites  a            TooMany    = TooMany
-% mergeWrites (Written a)  (Written b) = 
-%     if a == b then Written a else TooMany
-% \end{minted}
-% \end{onlyenv}
-% \begin{onlyenv}<2>
-% \begin{minted}[highlightlines={1,2}]{haskell}
-% mergeWrites  a            None       = a
-% mergeWrites  None         b          = b
-% mergeWrites  TooMany      b          = TooMany
-% mergeWrites  a            TooMany    = TooMany
-% mergeWrites (Written a)  (Written b) = 
-%     if a == b then Written a else TooMany
-% \end{minted}
-% \end{onlyenv}
-% \begin{onlyenv}<3>
-% \begin{minted}[highlightlines={3,4}]{haskell}
-% mergeWrites  a            None       = a
-% mergeWrites  None         b          = b
-% mergeWrites  TooMany      b          = TooMany
-% mergeWrites  a            TooMany    = TooMany
-% mergeWrites (Written a)  (Written b) = 
-%     if a == b then Written a else TooMany
-% \end{minted}
-% \end{onlyenv}
-% \begin{onlyenv}<4>
-% \begin{minted}[highlightlines={5,6}]{haskell}
-% mergeWrites  a            None       = a
-% mergeWrites  None         b          = b
-% mergeWrites  TooMany      b          = TooMany
-% mergeWrites  a            TooMany    = TooMany
-% mergeWrites (Written a)  (Written b) = 
-%     if a == b then Written a else TooMany
-% \end{minted}
-% \end{onlyenv}
-% \end{overlayarea}
-% \end{frame}
 
 
 \imageslide[0.6]{sudoku/sudoku1.png}
@@ -692,30 +537,6 @@ data WriteOnce a
 
 
 \begin{frame}[fragile]
-\centering \huge
-Bounded join semilattice
-\nl
-\large
-
-Identity: \\
-$x \vee bottom = bottom = bottom \vee x$
-\nl
-
-Associative: \\
-$x \vee (y \vee z) = (x \vee y) \vee z$
-\nl
-
-Commutative: \\
-$x \vee y = y \vee x$
-\nl
-
-Idempotent: \\
-$x \vee x = x$
-
-\end{frame}
-
-
-\begin{frame}[fragile]
 
 \begin{overlayarea}{\textwidth}{0.5\textheight}
 \begin{haskellcode}
@@ -757,6 +578,30 @@ instance Semilattice Possibilities where
 \column{0.3\textwidth}
 \includegraphics[scale=1.3]{set/more-info.pdf}
 \end{columns}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering \huge
+Bounded join semilattice
+\nl
+\large
+
+Identity: \\
+$x \vee bottom = bottom = bottom \vee x$
+\nl
+
+Associative: \\
+$x \vee (y \vee z) = (x \vee y) \vee z$
+\nl
+
+Commutative: \\
+$x \vee y = y \vee x$
+\nl
+
+Idempotent: \\
+$x \vee x = x$
+
 \end{frame}
 
 
