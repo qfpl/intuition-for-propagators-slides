@@ -248,9 +248,9 @@ oscillator = mdo
 oscillatorFixed :: Reveal String
 oscillatorFixed = mdo
 
-  lFst <- switchLabels [(sStart, "None"), (sInput, "Written True"), (sOscillate1, "TooMany")]
-  lSnd <- switchLabels [(sStart, "None"), (sProp1, "Written False"), (sOscillate2, "TooMany")]
-  lThd <- switchLabels [(sStart, "None"), (sProp2, "Written True"), (sOscillate3, "TooMany")]
+  lFst <- switchLabels [(sStart, "Unknown"), (sInput, "Known True"), (sOscillate1, "Contradiction")]
+  lSnd <- switchLabels [(sStart, "Unknown"), (sProp1, "Known False"), (sOscillate2, "Contradiction")]
+  lThd <- switchLabels [(sStart, "Unknown"), (sProp2, "Known True"), (sOscillate3, "Contradiction")]
 
   always $ cell "fst" lFst
   always $ propagator "not1" "not"
@@ -275,15 +275,15 @@ oscillatorFixed = mdo
 
   pure ()
   
-writeOnceBool :: Reveal String
-writeOnceBool = lift $ do
+perhapsBool :: Reveal String
+perhapsBool = lift $ do
   graphAttrs [RankDir FromTop]
   let textNode name val = node name [toLabel val, shape PlainText]
 
-  textNode "top" "TooMany"
-  textNode "true" "Written True  "
-  textNode "false" "  Written False"
-  textNode "bottom" "None"
+  textNode "top" "Contradiction"
+  textNode "true" "Known True  "
+  textNode "false" "  Unknown False"
+  textNode "bottom" "Unknown"
 
   edge "top" "true" [Dir NoDir]
   edge "top" "false" [Dir NoDir]
@@ -322,7 +322,7 @@ diagrams =
   , ("build-bidirectional-adder", biAdder2)
   , ("oscillator", oscillator)
   , ("oscillator-fixed", oscillatorFixed)
-  , ("writeonce-bool", writeOnceBool)
+  , ("perhaps-bool", perhapsBool)
   ]
 
 main :: IO ()
