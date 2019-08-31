@@ -122,9 +122,16 @@
 \end{frame}
 }}
 
+\newcommand{\ctof}{{
+\LARGE $\degree F = \degree C \times \frac{9}{5} + 32$
+}}
+
+\newcommand{\ftoc}{{
+\LARGE $\degree C = (\degree F - 32) \div \frac{9}{5}$
+}}
+
 \definecolor{bgc}{RGB}{255, 255, 255}
 \setbeamercolor{background canvas}{bg=bgc}
-
 
 %%----------------------------------------------------------------------------------------
 %	TITLE PAGE
@@ -167,43 +174,43 @@ a model of computation for {\bf highly parallel} machines
 \end{frame}
 
 
-\imageslide[1.8]{intro-cell0.pdf}
-\imageslide[1.8]{intro-cell1.pdf}
-\imageslide[1.8]{intro-cell2.pdf}
-
-\imageslide[1.5]{intro-prop0.pdf}
-\imageslide[1.5]{intro-prop1.pdf}
-\imageslide[1.5]{intro-prop2.pdf}
-\imageslide[1.5]{intro-prop3.pdf}
-\imageslide[1.5]{intro-prop4.pdf}
-\imageslide[1.5]{intro-prop5.pdf}
-\imageslide[1.5]{intro-prop6.pdf}
-
-
 \begin{frame}[fragile]
-\begin{haskellcode}
--- types
-data Par a
-instance Monad Par
 
-data Cell a
-\end{haskellcode}
-\pnl
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.5\textheight}
+\begin{onlyenv}<1>
+\includegraphics[scale=1.3]{intro-cell0.pdf}
+\end{onlyenv}
+\begin{onlyenv}<2>
+\includegraphics[scale=1.3]{intro-cell1.pdf}
+\end{onlyenv}
+\begin{onlyenv}<3>
+\includegraphics[scale=1.3]{intro-cell2.pdf}
+\end{onlyenv}
+\end{overlayarea}
+\end{column}
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.5\textheight}
+\begin{onlyenv}<1->
 \begin{haskellcode}
--- Creating a cell
-cell    :: Par (Cell a)
+do
+  c <- cell
 \end{haskellcode}
-\pnl
+\end{onlyenv}
+\begin{onlyenv}<2->
 \begin{haskellcode}
--- Working with Cells
-content :: Cell a -> Par (Maybe a)
-write   :: Cell a -> a -> Par ()
+  write c "Hello"
 \end{haskellcode}
-\pnl
+\end{onlyenv}
+\begin{onlyenv}<3->
 \begin{haskellcode}
--- Creating a propagator
-watch   :: Cell a -> (a -> Par ()) -> Par ()
+  write c "Compose"
 \end{haskellcode}
+\end{onlyenv}
+\end{overlayarea}
+\end{column}
+\end{columns}
 \end{frame}
 
 
@@ -214,18 +221,15 @@ watch   :: Cell a -> (a -> Par ()) -> Par ()
 \begin{column}{0.5\textwidth}
 \begin{overlayarea}{0.5\textwidth}{0.4\textheight}
 \begin{onlyenv}<1>
-\includegraphics[scale=0.8]{intro-toUpper0.pdf}
-\end{onlyenv}
-\begin{onlyenv}<2>
 \includegraphics[scale=0.8]{intro-toUpper1.pdf}
 \end{onlyenv}
-\begin{onlyenv}<3>
+\begin{onlyenv}<2>
 \includegraphics[scale=0.8]{intro-toUpper2.pdf}
 \end{onlyenv}
-\begin{onlyenv}<4>
+\begin{onlyenv}<3>
 \includegraphics[scale=0.8]{intro-toUpper3.pdf}
 \end{onlyenv}
-\begin{onlyenv}<5->
+\begin{onlyenv}<4->
 \includegraphics[scale=0.8]{intro-toUpper4.pdf}
 \end{onlyenv}
 \end{overlayarea}
@@ -238,36 +242,25 @@ watch   :: Cell a -> (a -> Par ()) -> Par ()
 do
   input  <- cell
 \end{haskellcode}
-\end{onlyenv}
-\begin{onlyenv}<2->
 \begin{haskellcode}
   output <- cell
 \end{haskellcode}
 \end{onlyenv}
-\begin{onlyenv}<3-5>
-\begin{minted}{haskell}
-  watch input (\c ->
-    write output (toUpper c))
-\end{minted}
-\end{onlyenv}
-\begin{onlyenv}<6>
-\begin{minted}[highlightlines={1,2}]{haskell}
-  watch input (\c ->
-    write output (toUpper c))
-\end{minted}
-\end{onlyenv}
-\begin{onlyenv}<7>
-\begin{minted}[highlightlines={1}]{haskell}
+\begin{onlyenv}<2->
+\begin{haskellcode}
   lift toUpper input output
-\end{minted}
+\end{haskellcode}
 \end{onlyenv}
 \end{overlayarea}
 \begin{overlayarea}{\textwidth}{0.2\textheight}
-% \nl
-\begin{onlyenv}<4->
+\begin{onlyenv}<3->
 \begin{haskellcode}
   -- run the network
   write input 'q'
+\end{haskellcode}
+\end{onlyenv}
+\begin{onlyenv}<5->
+\begin{haskellcode}
   content output   -- Just 'Q'
 \end{haskellcode}
 \end{onlyenv}
@@ -289,9 +282,6 @@ do
 \end{onlyenv}
 \begin{onlyenv}<2>
 \includegraphics[scale=0.9]{build-bidirectional-adder1.pdf}
-\end{onlyenv}
-\begin{onlyenv}<3>
-\includegraphics[scale=0.9]{build-bidirectional-adder2.pdf}
 \end{onlyenv}
 \end{overlayarea}
 \end{column}
@@ -323,15 +313,6 @@ do
         lift2 (+) l r o
 \end{haskellcode}
 \end{onlyenv}
-\begin{onlyenv}<3>
-\begin{haskellcode}
-    where
-      adder l r o = do
-        lift2 (+) l r o
-        lift2 (-) o l r
-        lift2 (-) o r l
-\end{haskellcode}
-\end{onlyenv}
 \end{overlayarea}
 \end{column}
 
@@ -339,10 +320,73 @@ do
 \end{frame}
 
 
-\imageslide[0.8]{celsius/celsius5.pdf}
-\imageslide[0.8]{celsius/celsius6.pdf}
-\imageslide[0.8]{celsius/celsius7.pdf}
-\imageslide[0.8]{celsius/celsius8.pdf}
+\begin{frame}
+
+\begin{center}
+\begin{LARGE}
+\begin{overlayarea}{0.2\textwidth}{0.5\textheight}
+\begin{onlyenv}<1>
+$z =\ x + y$
+\end{onlyenv}
+\begin{onlyenv}<2>
+$z \leftarrow x + y$
+\end{onlyenv}
+\begin{onlyenv}<3>
+$z \leftarrow x + y$ \\
+$x \leftarrow z - y$ \\
+$y \leftarrow z - x$ \\
+\end{onlyenv}
+\end{overlayarea}
+\end{LARGE}
+\end{center}
+\end{frame}
+
+
+\begin{frame}[fragile]
+\centering
+
+\begin{columns}
+\begin{column}{0.5\textwidth}
+\nl
+\begin{overlayarea}{0.5\textwidth}{0.4\textheight}
+\includegraphics[scale=0.9]{build-bidirectional-adder2.pdf}
+\end{overlayarea}
+\end{column}
+
+\begin{column}{0.5\textwidth}
+\begin{overlayarea}{0.5\textwidth}{0.3\textheight}
+\begin{haskellcode}
+do
+  inL  <- cell
+  inR  <- cell
+  out  <- cell
+\end{haskellcode}
+\nl
+\begin{haskellcode}
+  adder inL inR out
+\end{haskellcode}
+\end{overlayarea}
+
+\begin{overlayarea}{0.5\textwidth}{0.3\textheight}
+\invisible{phantom}
+\begin{haskellcode}
+    where
+      adder l r o = do
+        lift2 (+) l r o
+        lift2 (-) o l r
+        lift2 (-) o r l
+\end{haskellcode}
+\end{overlayarea}
+\end{column}
+
+\end{columns}
+\end{frame}
+
+
+\imagetextslide[0.8]{celsius/celsius5.pdf}{\ctof \\ \nl \ftoc}
+\imagetextslide[0.8]{celsius/celsius6.pdf}{\ctof \\ \nl \ftoc}
+\imagetextslide[0.8]{celsius/celsius7.pdf}{\ctof \\ \nl \ftoc}
+\imagetextslide[0.8]{celsius/celsius8.pdf}{\ctof \\ \nl \ftoc}
 
 
 \imageslide{oscillator0.pdf}
