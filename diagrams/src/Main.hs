@@ -178,10 +178,14 @@ biAdder = mdo
 biAdder2 :: Reveal String
 biAdder2 = mdo
 
+  lInL <- switchLabels [(sAdd1, "3"), (sMulti, ""), (sSub2, "7")]
+  lInR <- switchLabels [(sAdd2, "7"), (sMulti, ""), (sSub3, "8")]
+  lOut <- switchLabels [(sAdd3, "10"),(sMulti, ""), (sSub1, "15")]
+
   bunch 0 $ do
     lift $ graphAttrs [rank SameRank]
-    always $ cell "inL" ""
-    always $ cell "inR" ""
+    always $ cell "inL" lInL
+    always $ cell "inR" lInR
 
   bunch 1 $ do
     lift $ graphAttrs [rank SameRank]
@@ -191,7 +195,7 @@ biAdder2 = mdo
 
   bunch 2 $ do
     lift $ graphAttrs [rank SameRank]
-    always $ cell "out" ""
+    always $ cell "out" lOut
 
   reveal sSingle $ attrs [Weight (Int 50)] $ edge "inL" "add"
   reveal sSingle $ attrs [Weight (Int 50)] $ edge "inR" "add"
@@ -209,7 +213,13 @@ biAdder2 = mdo
   never $ attrs [Weight (Int 0), MinLen 2] $ edge "inR" "out"
 
   sSingle <- slide
+  sAdd1 <- slide
+  sAdd2 <- slide
+  sAdd3 <- slide
   sMulti <- slide
+  sSub1 <- slide
+  sSub2 <- slide
+  sSub3 <- slide
 
   pure ()
 
