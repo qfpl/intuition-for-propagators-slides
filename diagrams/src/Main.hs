@@ -292,7 +292,7 @@ perhapsBool = lift $ do
 
   textNode "top" "Contradiction"
   textNode "true" "Known True  "
-  textNode "false" "  Unknown False"
+  textNode "false" "  Known False"
   textNode "bottom" "Unknown"
 
   edge "top" "true" [Dir NoDir]
